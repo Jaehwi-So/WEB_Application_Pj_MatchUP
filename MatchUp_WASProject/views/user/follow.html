@@ -1,0 +1,89 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+    #info_box{
+        margin : auto;
+        margin-top : 20px;
+        padding : 15px;
+        text-align : center;
+        font-size : 20px;
+    }
+    #info_box .title{
+        font-family : 'Do Hyeon';
+        font-size : 40px;
+        font-weight : bold;
+    }
+    #list_box{
+        margin : auto;
+        width : 800px;
+        text-align : center;
+    }
+    #list_box table{
+        margin : auto;
+        border-collapse : collapse;
+    }
+    #list_box table tr th{
+        background-color: rgb(0, 161, 0);
+        border-top : 1px solid black;
+        border-bottom : 1px solid black;
+        padding : 5px;
+    }
+    #list_box table tr td{
+        background-color: white;
+        border-bottom : 1px solid black;
+        padding : 5px;
+    }
+    .info_input{
+        margin-top : 8px;
+        font-size : 20px;
+    }
+
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="info_box">
+    <p class="title">
+        {% if list_type == 'follower' %}
+        {{target_name}}님의 팔로워 목록
+        {% else %}
+        {{target_name}}님의 팔로잉 목록
+        {% endif %}
+    </p>
+    <br><hr><br>
+    <div id="list_box">
+        <table id="search_list">
+            <tr>
+                <th width="150">프로필 사진</th>
+                <th width="120">이름</th>
+                <th width="150">ID</th>
+                <th width="200">닉네임</th>
+                <th width="150">상세보기</th>
+            </tr>
+            {% for follow in member %}
+            <tr>
+                {% if follow.photo %}
+                <td><img src='{{follow.photo}}' width="120" height="120"></td>
+                {% else %}
+                <td><img src='/img/profile_non.png' width="120" height="120"></td>
+                {% endif %}
+                <td>{{follow.user_name}}</td>
+                <td>{{follow.user_id}}</td>
+                <td>{{follow.nick}}</td>
+                <td><input type="button" class="btn_m" value="프로필 보기" onclick="location.href= '/user/profile/{{follow.id}}'"></td>
+            </tr>
+            {% endfor %}           
+        </table>
+    </div>
+    <br>
+    <div id="pager">
+        {{pager|safe}}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+</script>
+{% endblock %}

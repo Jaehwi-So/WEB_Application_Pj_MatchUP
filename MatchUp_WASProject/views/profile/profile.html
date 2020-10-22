@@ -1,0 +1,262 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+    #profile_box{
+        width : 95%;
+        margin : auto;
+        background :white;
+    }
+    .nick{
+        text-align : center;
+        font-size : 30px;
+    }
+    .photo{
+        text-align : center;
+    }
+    .profile_tb{
+        margin : auto;
+        border-collapse : collapse;
+    }
+    .profile_tb td{
+        border : black solid 1px;
+        padding-left : 10px;
+        padding-right : 10px;
+    }
+    .profile_tb th{
+        border : black solid 1px;
+        padding-left : 10px;
+        padding-right : 10px;
+    }
+    .profile_label_odd{
+        background-color : lightgreen;
+    }
+    .profile_label_even{
+        background-color : rgb(112, 209, 112);
+    }
+    .update_box td{
+        padding: 10px 0px;
+        text-align : center;
+    }
+    #follow_info{
+        margin: auto;
+        border: collapse;
+        text-align:center;
+        font-family:'Do Hyeon';
+        font-size : 25px;
+        color:green;
+    }
+    #follow_info tr{
+        cursor:pointer;
+    }
+    #follower{
+        color:black;
+    }
+    #following{
+        color:black;
+    }
+
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="profile_box">
+    <br><p class="nick"><span style="color:green; font-weight:bold;">{{profile.nick}}</span>님의 프로필</p>
+    <br><hr><br>
+    <table class="profile_tb">
+        <tr>
+            <td rowspan = "5" width = "300" class="photo">
+                <img id="prof_photo" src='{{profile.photo}}' width="255" height="255"/>
+            </td>
+            <th class="profile_label_odd" width = "100">이름</th>
+            <td width = "115">{{profile.user_name}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_even">ID</th>
+            <td>{{profile.user_id}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_odd"> 성별</th>
+            <td>{{profile.gender}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_even">이메일</th>
+            <td>{{profile.email}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_odd">생일</th>
+            <td>{{profile.birth.getFullYear()}}/{{profile.birth.getMonth()}}/{{profile.birth.getDate()}}</td>
+        </tr>
+        <tr class="update_box">
+            <input type="hidden" id="member_id" name="member_id" value="{{profile.id}}">
+            {% if user and (user.id == profile.id) %}
+            <form id="upload_form" method="post" enctype="multipart/form-data">
+            <td>
+                <input type="hidden" name="id" value="{{profile.id}}">
+                <input id="photo_url" type="hidden" name="photo" value="">
+                <input id="upload_photo" type="file" name="upload_img" style="display:none">
+                <input class ="btn_m" type="button" onclick="onclick=document.all.upload_img.click()" value="사진 불러오기">
+                <input class ="btn_m" type="button" onclick="update_photo(this.form);" value="사진 수정">
+            </td>
+            </form>
+            <td colspan="2" onclick="update_info();">개인정보 변경</td>
+            {% else %}
+            <form>
+            <td>
+                <input type="hidden" name="my_id" value="{{user.id}}">
+                <input id="follow_btn" class ="btn_m" type="button" onclick="follow(this.form);" value="팔로우">
+                <input id="unfollow_btn" class ="btn_m" type="hidden" onclick="unfollow(this.form);" value="언팔로우">
+            </td>
+            <td colspan="2"><input class ="btn_m" type="button" onclick="follow();" value="팀 초대"></td>
+            </form>
+            
+            {% endif %}
+        </tr>
+    </table>
+    <table id ="follow_info">
+        <tr>
+            <td width ="300" onclick="follower_list();">팔로워  <span id="follower"></span></td>
+            <td width ="300" onclick="following_list();">팔로잉  <span id="following"></span></td>
+        </tr>
+    </table>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$(function(){
+    //프로필 사진이 없는 경우
+    if('{{profile.photo}}' == "" || '{{profile.photo}}' == null){
+        document.getElementById('prof_photo').src = "/img/profile_non.png";
+    }
+    const profID = document.getElementById('member_id').value;
+    axios.get(`/user/follow/info/${profID}`)
+    .then((res) => {
+        if(res.data.res == "success"){
+            if(profID != '{{user.id}}'){
+                if(res.data.isFollowing){
+                    document.getElementById('follow_btn').type = "hidden";
+                    document.getElementById('unfollow_btn').type = "button";
+                }
+                else{
+                    document.getElementById('follow_btn').type = "button";
+                    document.getElementById('unfollow_btn').type = "hidden";
+                }
+            }
+            document.getElementById('follower').innerHTML = res.data.follower;
+            document.getElementById('following').innerHTML = res.data.following;
+        }
+        else{
+            console.log('error');
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+});
+
+
+
+
+//프로필 사진 저장
+const update_photo = (f) => {
+    if(f.photo.value.trim() == ''){
+        alert("바꿀 프로필 사진을 업로드해주세요");
+        return;
+    }
+    var form = $("#upload_form").serializeObject();
+    axios.post('/user/photo', form)
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert("프로필 사진 변경이 완료되었습니다.");
+        }
+        else{
+            alert("프로필 사진 변경에 실패했습니다.");
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+};
+
+
+//사진 업로드시 미리보기 처리
+if (document.getElementById('upload_photo')) {
+    document.getElementById('upload_photo').addEventListener('change', function(e) {
+        const formData = new FormData();
+        formData.append('img', this.files[0]);
+        axios.post('/user/upload', formData)
+        .then((res) => {
+            document.getElementById('photo_url').value = res.data.url;
+            document.getElementById('p_photo').src = res.data.url;
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+    });
+};
+
+//팔로우
+const follow = (f) => {
+    const memberID = document.getElementById('member_id').value;
+    const myID = f.my_id.value;
+    if (memberID !== myID) {
+        if (confirm('팔로우 하시겠습니까?')) {
+            axios.post(`/user/follow/${memberID}`)
+            .then((res) => {
+                if(res.data.res == "success"){
+                    alert('팔로우 하였습니다.');
+                    location.reload();
+                }
+                else{
+                    alert('팔로우를 실패했습니다.');
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+        }
+    }
+    else{
+        alert('자신을 팔로우할 수 없습니다.');
+        return;
+    }
+};
+
+//언팔로우
+const unfollow = (f) => {
+    const memberID = document.getElementById('member_id').value;
+    const myID = f.my_id.value;
+    if (memberID !== myID) {
+        if (confirm('팔로우를 취소하시겠습니까?')) {
+            axios.post(`/user/unfollow/${memberID}`)
+            .then((res) => {
+                if(res.data.res == "success"){
+                    alert('팔로우를 취소했습니다.');
+                    location.reload();
+                }
+                else{
+                    alert('팔로우 취소를 실패했습니다.');
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+        }
+    }
+    else{
+        alert('자신을 언팔로우할 수 없습니다.');
+        return;
+    }
+};
+
+//팔로워 목록 보기
+function follower_list(f){
+    const id = document.getElementById('member_id').value
+    location.href = '/user/follower/' + id;
+};
+//팔로잉 목록 보기
+function following_list(f){
+    const id = document.getElementById('member_id').value
+    location.href = '/user/following/' + id;
+};
+</script>
+{% endblock %}

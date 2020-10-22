@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MatchUP!!</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link href='https://fonts.googleapis.com/css?family=Do+Hyeon' rel='stylesheet' type='text/css'>
+  <style>
+    header{
+      position : relative;
+      margin : auto;
+      margin-top : 50px;
+      width : 1250px;
+      background-color: green;
+    }
+    #head_banner{
+      margin : auto;
+      height : 150px;
+      background-color: green;
+    }
+    #head_title{
+      margin : auto;
+      text-align : center;
+      width : 600px;
+      font-size : 90px;
+      padding-top : 20px;
+      font-family : 'Do Hyeon';
+      font-weight : 'bold';
+    }
+    #head_navi{
+      margin : auto;
+      height : 60px;
+      cursor: pointer;
+    }
+    #head_navi ul{
+      list-style-type: none;
+			margin: 0;
+			padding: 0;
+    }
+	  #head_navi li{
+       float: left;
+       width: 25%;
+  	}
+	  #head_navi li a{ 
+      color: black;
+      display: block;
+      height: 100%;
+      border-right: 5px solid gray;
+      border-bottom: 5px solid gray;
+      text-align: center;
+      background: white;
+      font-size: 40px;
+    }
+    .navi_left{
+      border-left: 5px solid gray;
+    }
+    main{
+      margin : auto;
+      margin-top : 20px;
+      margin-bottom : 100px;
+      position : relative;
+      width : 1200px;
+      padding : 25px;
+      background-color : rgb(190, 245, 190);
+      overflow : hidden;
+      border : 2px solid black;
+    }
+		#main_navi{
+			width : 260px;
+      background : pink;
+			float : left;	
+		}
+		#main_content{
+      width : 900px; padding: 10px;
+      border : 1.5px solid black;
+      margin-left : 10px;
+      background : white;
+			float : right;
+    }
+    #user_box{
+      width : 226px; height : 300px;
+      padding : 15px;
+      background : lightgray;
+      color : black;
+      border : 2px solid black;
+      margin : auto; 
+    }
+    #login_form{
+      text-align : center;
+    }
+    .login_inputbox h1{
+      font-family : 'Do Hyeon';
+      font-size : 35px;
+      margin-bottom : 10px;
+    }
+    .login_inputbox p{
+      width: 200px; 
+      margin : auto; 
+      margin-bottom:10px;
+      text-align : center;
+      font-size : 25px;
+    }
+    .login_inputbox input {
+      display : block;
+      width: 200px; 
+      font-size : 25px;
+      margin : auto; 
+      margin: 15px auto;
+    }
+    #user_box{
+      margin : auto;
+      text-align : center;
+    }
+    #user_box h2{
+      margin-top : 10px;
+      font-size : 25px;
+    }
+    #user_box p{
+      font-size : 25px;
+      font-family : 'Do Hyeon';
+    }
+    .greenfont{
+      color : green;
+    }
+  </style>
+  {% block style %}
+  {% endblock %}
+  <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/main.js"></script>
+  <script>
+
+  </script>
+</head>
+<body>
+  <header>
+    <div id="head_banner">
+      <p id="head_title">
+        <img src="/img/football.png" width="90px" height="90px">MatchUP!!</p>
+    </div>
+    <div id="head_navi">
+        <ul>
+           <li><a class="navi_left" href='/search'>사람 찾기</a></li>
+           <li><a href="#1">팀 찾기</a></li>
+           <li><a href="#1">팀 관리</a></li>
+           <li><a href="#2">대전 찾기</a></li>
+        </ul>
+    </div>
+  </header>
+  <main>
+    <!--왼쪽 로그인 창, 네비게이션 창-->
+    <div id="main_navi">
+      <!--로그인 완료시, 유저 정보-->
+      <div id="user_box">
+        {% if user and user.id %}
+        {% if user.photo == "" or user.photo == null %}
+        <img id="p_photo" src='/img/profile_non.png' width="150" height="150"/>
+        {% else %}
+        <img id="p_photo" src='{{user.photo}}' width="150" height="150"/>
+        {% endif %}
+        <hr>
+        <h2><span class="greenfont">{{user.nick}}</span>님 <br>환영합니다</h2>
+        <p>
+          <span onclick="prof_follower_list()" style="cursor:pointer;">
+            <span class="greenfont">팔로워 </span>{{user_followerNum}} 
+          </span> 
+          <span onclick="prof_following_list()" style="cursor:pointer;">
+            <span class="greenfont">팔로잉 </span>{{user_followingNum}} 
+          </span> 
+        <input id="btn_myprofile" type="button" class="btn_m" value="내 프로필" onclick="my_profile();">
+        <input id="btn_logout" type="button" class="btn_m" value="로그아웃" onclick="logout();">
+        {% else %}
+        <form id="login_form" action="/auth/login" method="post">
+          <div class = "login_inputbox">
+            <h1>Play Start</h1>
+            <hr>
+            <input id="login_id" name="user_id" placeholder="아이디 입력">
+            <input id="login_pwd" type="password" name="user_pwd" placeholder="비밀번호 입력">
+          </div>
+          <input id="join" type="button" class="btn_m" value="회원가입" onclick="location.href='/join'">
+          <input id="btn_login" type="button" class="btn_m" value="로그인" onclick="login();">
+        </form>
+        {% endif %}
+      </div>
+      <!--end of 로그인, 유저 정보-->
+    </div>
+    <!--end of 왼쪽 로그인 창, 네비게이션 창-->
+    <div id="main_content">
+      {% block main_content %}
+      {% endblock %}
+    </div>
+  </main>
+  <script>
+    window.onload = () => {
+      if (new URL(location.href).searchParams.get('loginError')) {
+        alert(new URL(location.href).searchParams.get('loginError'));
+      }
+    };
+    //로그인 버튼 클릭시
+    const login = () => {
+      var form = $("#login_form").serializeObject();
+      axios.post('/auth/login', form)
+          .then((res) => {
+            const result = res.data.result;
+            if (result == 'cannotFoundId') {
+              alert('아이디가 존재하지 않습니다.');
+              return;
+            }
+            if (result == 'notMatchPwd') {
+              alert('비밀번호가 일치하지 않습니다.');
+              return;
+            }
+            if (result == 'success') {
+              alert('로그인 성공!');
+              location.href="/";
+              return;
+            }
+            alert('로그인 실패!');
+            location.href="/";
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+    };
+    //로그아웃 버튼 클릭시
+    const logout = () => {
+      location.href="/auth/logout"
+    };
+
+    //내 프로필 조회
+    const my_profile = (id) => {
+      location.href= "/user/profile/{{user.id}}" 
+    };
+
+    //팔로워 목록 보기
+    function prof_follower_list(){
+        location.href = '/user/follower/{{user.id}}';
+    };
+    //팔로잉 목록 보기
+    function prof_following_list(){
+        location.href = '/user/following/{{user.id}}';
+    };
+  </script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  {% block script %}
+  {% endblock %}
+</body>
+</html>
