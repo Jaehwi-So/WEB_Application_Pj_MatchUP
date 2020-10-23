@@ -51,6 +51,7 @@
       text-align: center;
       background: white;
       font-size: 40px;
+      font-family: 'Do Hyeon';
     }
     .navi_left{
       border-left: 5px solid gray;
@@ -72,7 +73,7 @@
 			float : left;	
 		}
 		#main_content{
-      width : 900px; padding: 10px;
+      width : 900px; padding: 30px 10px;
       border : 1.5px solid black;
       margin-left : 10px;
       background : white;
@@ -91,8 +92,9 @@
     }
     .login_inputbox h1{
       font-family : 'Do Hyeon';
-      font-size : 35px;
+      font-size : 45px;
       margin-bottom : 10px;
+      margin-top : 10px;
     }
     .login_inputbox p{
       width: 200px; 
@@ -104,9 +106,10 @@
     .login_inputbox input {
       display : block;
       width: 200px; 
-      font-size : 25px;
+      font-size : 22px;
       margin : auto; 
       margin: 15px auto;
+      padding : 3px;
     }
     #user_box{
       margin : auto;
@@ -119,9 +122,6 @@
     #user_box p{
       font-size : 25px;
       font-family : 'Do Hyeon';
-    }
-    .greenfont{
-      color : green;
     }
   </style>
   {% block style %}
@@ -154,31 +154,32 @@
       <div id="user_box">
         {% if user and user.id %}
         {% if user.photo == "" or user.photo == null %}
-        <img id="p_photo" src='/img/profile_non.png' width="150" height="150"/>
+        <img id="per_photo" src='/img/profile_non.png' width="130" height="130"/>
         {% else %}
-        <img id="p_photo" src='{{user.photo}}' width="150" height="150"/>
+        <img id="per_photo" src='{{user.photo}}' width="130" height="130"/>
         {% endif %}
         <hr>
-        <h2><span class="greenfont">{{user.nick}}</span>님 <br>환영합니다</h2>
-        <p>
-          <span onclick="prof_follower_list()" style="cursor:pointer;">
-            <span class="greenfont">팔로워 </span>{{user_followerNum}} 
-          </span> 
-          <span onclick="prof_following_list()" style="cursor:pointer;">
-            <span class="greenfont">팔로잉 </span>{{user_followingNum}} 
-          </span> 
-        <input id="btn_myprofile" type="button" class="btn_m" value="내 프로필" onclick="my_profile();">
-        <input id="btn_logout" type="button" class="btn_m" value="로그아웃" onclick="logout();">
+        <h2><span class="boldgreenfont">{{user.nick}}</span>님 환영합니다</h2>
+        <table>
+          <tr>
+            <td><button id="btn_myprofile" class="btn_f" onclick="my_profile();">내 프로필</button></td>
+            <td><button id="btn_logout" class="btn_f" onclick="logout();">로그아웃</button></td>
+          </tr>
+          <tr>
+            <td><button class="btn_f" onclick="prof_follower_list();">팔로워<br><span class="boldgreenfont">{{user_followerNum}}</span></button></td>
+            <td><button class="btn_f" onclick="prof_following_list();">팔로잉<br><span class="boldgreenfont">{{user_followingNum}}</span></td>
+          </tr>
+        </table>
         {% else %}
         <form id="login_form" action="/auth/login" method="post">
           <div class = "login_inputbox">
-            <h1>Play Start</h1>
+            <h1>GameStart</h1>
             <hr>
             <input id="login_id" name="user_id" placeholder="아이디 입력">
             <input id="login_pwd" type="password" name="user_pwd" placeholder="비밀번호 입력">
           </div>
-          <input id="join" type="button" class="btn_m" value="회원가입" onclick="location.href='/join'">
-          <input id="btn_login" type="button" class="btn_m" value="로그인" onclick="login();">
+          <input id="btn_login" type="button" class="btn_f" value="로그인" onclick="login();">
+          <input id="join" type="button" class="btn_f" value="회원가입" onclick="location.href='/join'">
         </form>
         {% endif %}
       </div>
@@ -212,11 +213,10 @@
             }
             if (result == 'success') {
               alert('로그인 성공!');
-              location.href="/";
+              location.reload();
               return;
             }
             alert('로그인 실패!');
-            location.href="/";
           })
           .catch((err) => {
             console.error(err);

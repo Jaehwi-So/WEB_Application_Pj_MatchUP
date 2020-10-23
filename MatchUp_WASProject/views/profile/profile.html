@@ -45,14 +45,76 @@
         font-size : 25px;
         color:green;
     }
-    #follow_info tr{
-        cursor:pointer;
+    #follow_info{
+        margin-top:15px;
     }
     #follower{
-        color:black;
+        color:green;
+        font-weight : bold;
     }
     #following{
-        color:black;
+        color:green;
+        font-weight : bold;
+    }
+
+    #update_ck_box{
+        width : 600px;
+        border : 1.5px solid black;
+        padding : 15px;
+        text-align : center;
+        margin : 20px auto;
+        display : none;
+    }
+    #update_ck_box label{
+        font-size : 30px;
+        font-family : 'Do Hyeon';
+        width : 200px; display: inline-block;
+    }
+    #update_ck_box input{
+        font-size : 20px;
+        padding : 5px;
+    }
+    .profile_content{
+        width : 558px;
+        background-color : rgba(205, 247, 205, 0.555);
+        border : 1.5px dotted black;
+        margin : 25px auto;
+        padding : 25px;
+        font-size : 18px;
+        text-align : center;
+    }
+    .profile_content h3{
+        font-size : 30px;
+        color :darkgreen;
+        font-family : 'Do Hyeon';
+        margin-bottom : 10px;
+    }
+    .profile_content input{
+        display : inline-block;
+        margin-bottom : 15px;
+        font-size : 18px;
+        padding : 3px;
+        margin : auto;
+    }
+    .region_tb{
+        margin:auto; 
+        background-color : rgba(202, 201, 201, 0.342);
+        border-collapse : collapse;
+    }
+    .region_tb tr td{
+        padding : 5px;
+        text-align: left; 
+        font-size:25px; 
+        font-weight:bold; 
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
+    #content_content textarea{
+        font-size : 18px;
+        padding : 5px;
+        text-overflow : ellipsis;
+        text-align : left;
+        font-family : Arial, Helvetica, sans-serif;
     }
 
 </style>
@@ -60,6 +122,12 @@
 {% block main_content %}
 <div id="profile_box">
     <br><p class="nick"><span style="color:green; font-weight:bold;">{{profile.nick}}</span>님의 프로필</p>
+    <table id ="follow_info">
+        <tr>
+            <td><button class="btn_f" onclick='follower_list();'>팔로워<br><span id="follower"></span></button></td>
+            <td><button class="btn_f" onclick='following_list();'>팔로잉<br><span id="following"></span></button></td>
+        </tr>
+    </table>
     <br><hr><br>
     <table class="profile_tb">
         <tr>
@@ -87,6 +155,7 @@
         </tr>
         <tr class="update_box">
             <input type="hidden" id="member_id" name="member_id" value="{{profile.id}}">
+            <!-- 자신일 경우 보여지는 컨텐트-->
             {% if user and (user.id == profile.id) %}
             <form id="upload_form" method="post" enctype="multipart/form-data">
             <td>
@@ -97,33 +166,129 @@
                 <input class ="btn_m" type="button" onclick="update_photo(this.form);" value="사진 수정">
             </td>
             </form>
-            <td colspan="2" onclick="update_info();">개인정보 변경</td>
+            <td colspan="2"><input class ="btn_l" type="button" onclick="update_ck();" value="개인정보 변경"></td>
+            <!-- 자신이 아닐 때 보여지는 컨텐트-->
             {% else %}
             <form>
             <td>
                 <input type="hidden" name="my_id" value="{{user.id}}">
-                <input id="follow_btn" class ="btn_m" type="button" onclick="follow(this.form);" value="팔로우">
-                <input id="unfollow_btn" class ="btn_m" type="hidden" onclick="unfollow(this.form);" value="언팔로우">
+                <input id="follow_btn" class ="btn_l" type="button" onclick="follow(this.form);" value="팔로우">
+                <input id="unfollow_btn" class ="btn_l" type="hidden" onclick="unfollow(this.form);" value="언팔로우">
             </td>
-            <td colspan="2"><input class ="btn_m" type="button" onclick="follow();" value="팀 초대"></td>
+            <td colspan="2"><input class ="btn_l" type="button" onclick="follow();" value="팀 초대"></td>
             </form>
-            
             {% endif %}
         </tr>
     </table>
-    <table id ="follow_info">
+    <div id="update_ck_box">
+        <label>비밀번호 확인 </label><input type="password" id="input_pwd"><br><br><hr><br>
+        <input class ="btn_l" type="button" onclick="update_info();" value="회원정보 변경">
+        <input class ="btn_l" type="button" onclick="user_del();" value="회원 탈퇴">  
+        <input class ="btn_l" type="button" onclick="update_cancel();" value="취소">
+    </div>
+</div>
+<!--활동 지역-->
+<div class="profile_content">
+    <h3>활동 지역</h3>
+    <div id="region_content" style="font-size : 20px;">
+        {% if profile.region %}
+        {{profile.region}}
+        {% else %}
+        등록된 활동 지역이 없습니다.
+        {% endif %}
+        {% if user and (user.id == profile.id) %}
+        <br><br><button class="btn_l" onclick="edit_region();">내용 수정</button>
+        {% endif %}
+    </div>
+    <div id="region_edit" style="display:none;">
+        <input id="region_edit_value" value="{{profile.region}}"><br><br>
+        <button class="btn_l" onclick="update_region();">수정 완료</button>
+        <button class="btn_l" onclick="cancel_region();">취소</button>
+    </div>
+</div>
+<!--포지션-->
+<div class="profile_content" id="content_region">
+    <table class="region_tb">
         <tr>
-            <td width ="300" onclick="follower_list();">팔로워  <span id="follower"></span></td>
-            <td width ="300" onclick="following_list();">팔로잉  <span id="following"></span></td>
+            <td width="150px"> <h3>메인 포지션</h3> </td>
+            <td width="250px"> 
+                <div id="m_position_content1">
+                {% if profile.main_position %}
+                {{profile.main_position}}
+                {% else %}
+                등록된 포지션이 없습니다.
+                {% endif %}
+                </div>
+                <div id="m_position_edit1" style="display:none;">
+                    <input id="m_position_edit_value" value="{{profile.main_position}}">
+                </div>      
+            </td>
+            <td width="150px">
+                {% if user and (user.id == profile.id) %}
+                <div id="m_position_content2" >
+                <button class="btn_l" onclick="edit_m_position();">내용 수정</button>
+                </div>
+                <div id="m_position_edit2" style="display:none;">
+                <button class="btn_m" onclick="update_m_position();">수정 완료</button>
+                <button class="btn_m" onclick="cancel_m_position();">취소</button>
+                </div>  
+                {% endif %}
+            </td>
+            </div>
+        </tr>
+        <tr>
+            <td width="150px"> <h3>부 포지션</h3> </td>
+            <td width="250px"> 
+                <div id="s_position_content1">
+                {% if profile.sub_position %}
+                {{profile.sub_position}}
+                {% else %}
+                등록된 포지션이 없습니다.
+                {% endif %}
+                </div>
+                <div id="s_position_edit1" style="display:none;">
+                    <input id="s_position_edit_value" value="{{profile.sub_position}}">
+                </div>      
+            </td>
+            <td width="150px">
+                {% if user and (user.id == profile.id) %}
+                <div id="s_position_content2" >
+                <button class="btn_l" onclick="edit_s_position();">내용 수정</button>
+                </div>
+                <div id="s_position_edit2" style="display:none;">
+                <button class="btn_m" onclick="update_s_position();">수정 완료</button>
+                <button class="btn_m" onclick="cancel_s_position();">취소</button>
+                </div>  
+                {% endif %}
+            </td>
+            </div>
         </tr>
     </table>
 </div>
+<!--소개글-->
+<div class="profile_content" id="content_content">
+    <h3>소개글</h3>
+    <div id="contentP_content">
+    <textarea rows="20" cols="50" disabled>{% if profile.content %}{{profile.content}}{% else %}등록된 소개글이 없습니다.{% endif %}
+    </textarea>
+    {% if user and (user.id == profile.id) %}
+    <button class="btn_l" onclick="edit_content();">내용 수정</button>
+    {% endif %}
+    </div>
+
+    <div id="contentP_edit" style="display:none;">
+        <textarea id="contentP_edit_value" rows="20" cols="50">{{profile.content}}</textarea>
+        <button class="btn_l" onclick="update_content();">수정 완료</button>
+        <button class="btn_l" onclick="cancel_content();">취소</button>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block script %}
 <script>
 $(function(){
-    //프로필 사진이 없는 경우
+    //프로필 사진이 없는 경우 갱신
     if('{{profile.photo}}' == "" || '{{profile.photo}}' == null){
         document.getElementById('prof_photo').src = "/img/profile_non.png";
     }
@@ -152,111 +317,119 @@ $(function(){
         console.error(err);
     });
 });
-
-
-
-
-//프로필 사진 저장
-const update_photo = (f) => {
-    if(f.photo.value.trim() == ''){
-        alert("바꿀 프로필 사진을 업로드해주세요");
+const edit_region = () => {
+    document.getElementById('region_content').style = "display:none;"
+    document.getElementById('region_edit').style = "display:unset;"
+}
+const cancel_region = () => {
+    document.getElementById('region_content').style = "display:unset;"
+    document.getElementById('region_edit').style = "display:none;"
+}
+const update_region = () => {
+    const value = document.getElementById("region_edit_value").value;
+    if(value.trim() < 1){
+        alert('최소 한 글자 이상 입력해주세요');
         return;
     }
-    var form = $("#upload_form").serializeObject();
-    axios.post('/user/photo', form)
+    axios.put('/user/region/{{user.id}}', { region :  value})
     .then((res) => {
         if(res.data.res == "success"){
-            alert("프로필 사진 변경이 완료되었습니다.");
-        }
+            alert('성공적으로 변경되었습니다.');
+            location.reload();
+         }
         else{
-            alert("프로필 사진 변경에 실패했습니다.");
+            alert('변경에 실패했습니다.');
         }
-    })
-    .catch((err) => {
-        console.error(err);
     });
-};
-
-
-//사진 업로드시 미리보기 처리
-if (document.getElementById('upload_photo')) {
-    document.getElementById('upload_photo').addEventListener('change', function(e) {
-        const formData = new FormData();
-        formData.append('img', this.files[0]);
-        axios.post('/user/upload', formData)
-        .then((res) => {
-            document.getElementById('photo_url').value = res.data.url;
-            document.getElementById('p_photo').src = res.data.url;
-        })
-        .catch((err) => {
-            console.error(err);
-        });
-    });
-};
-
-//팔로우
-const follow = (f) => {
-    const memberID = document.getElementById('member_id').value;
-    const myID = f.my_id.value;
-    if (memberID !== myID) {
-        if (confirm('팔로우 하시겠습니까?')) {
-            axios.post(`/user/follow/${memberID}`)
-            .then((res) => {
-                if(res.data.res == "success"){
-                    alert('팔로우 하였습니다.');
-                    location.reload();
-                }
-                else{
-                    alert('팔로우를 실패했습니다.');
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-        }
-    }
-    else{
-        alert('자신을 팔로우할 수 없습니다.');
+}
+const edit_m_position = () => {
+    document.getElementById('m_position_content1').style = "display:none;"
+    document.getElementById('m_position_content2').style = "display:none;"
+    document.getElementById('m_position_edit1').style = "display:unset;"
+    document.getElementById('m_position_edit2').style = "display:unset;"
+}
+const cancel_m_position = () => {
+    document.getElementById('m_position_content1').style = "display:unset;"
+    document.getElementById('m_position_content2').style = "display:unset;"
+    document.getElementById('m_position_edit1').style = "display:none;"
+    document.getElementById('m_position_edit2').style = "display:none;"
+}
+const update_m_position = () => {
+    const value = document.getElementById("m_position_edit_value").value;
+    if(value.trim() < 1 || value.trim > 10){
+        alert('포지션은 1-10자 이내로 입력해주세요.');
         return;
     }
-};
-
-//언팔로우
-const unfollow = (f) => {
-    const memberID = document.getElementById('member_id').value;
-    const myID = f.my_id.value;
-    if (memberID !== myID) {
-        if (confirm('팔로우를 취소하시겠습니까?')) {
-            axios.post(`/user/unfollow/${memberID}`)
-            .then((res) => {
-                if(res.data.res == "success"){
-                    alert('팔로우를 취소했습니다.');
-                    location.reload();
-                }
-                else{
-                    alert('팔로우 취소를 실패했습니다.');
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
+    axios.put('/user/mainposition/{{user.id}}', { main_position :  value})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('성공적으로 변경되었습니다.');
+            location.reload();
+         }
+        else{
+            alert('변경에 실패했습니다.');
         }
-    }
-    else{
-        alert('자신을 언팔로우할 수 없습니다.');
+    });
+}
+const edit_s_position = () => {
+    document.getElementById('s_position_content1').style = "display:none;"
+    document.getElementById('s_position_content2').style = "display:none;"
+    document.getElementById('s_position_edit1').style = "display:unset;"
+    document.getElementById('s_position_edit2').style = "display:unset;"
+}
+const cancel_s_position = () => {
+    document.getElementById('s_position_content1').style = "display:unset;"
+    document.getElementById('s_position_content2').style = "display:unset;"
+    document.getElementById('s_position_edit1').style = "display:none;"
+    document.getElementById('s_position_edit2').style = "display:none;"
+}
+const update_s_position = () => {
+    const value = document.getElementById("s_position_edit_value").value;
+    if(value.trim() < 1 || value.trim > 10){
+        alert('포지션은 1-10자 이내로 입력해주세요.');
         return;
     }
-};
+    axios.put('/user/subposition/{{user.id}}', { sub_position :  value})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('성공적으로 변경되었습니다.');
+            location.reload();
+         }
+        else{
+            alert('변경에 실패했습니다.');
+        }
+    });
+}
 
-//팔로워 목록 보기
-function follower_list(f){
-    const id = document.getElementById('member_id').value
-    location.href = '/user/follower/' + id;
-};
-//팔로잉 목록 보기
-function following_list(f){
-    const id = document.getElementById('member_id').value
-    location.href = '/user/following/' + id;
-};
+const edit_content = () => {
+    document.getElementById('contentP_content').style = "display:none;"
+    document.getElementById('contentP_edit').style = "display:unset;"
+}
+const cancel_content = () => {
+    document.getElementById('contentP_content').style = "display:unset;"
+    document.getElementById('contentP_edit').style = "display:none;"
+}
+const update_content = () => {
+    const value = document.getElementById("contentP_edit_value").value;
+    if(value.trim() < 10 || value.trim > 1000){
+        alert('10-1000자 이내로 입력해주세요.');
+        return;
+    }
+    axios.put('/user/content/{{user.id}}', { content :  value})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('성공적으로 변경되었습니다.');
+            location.reload();
+         }
+        else{
+            alert('변경에 실패했습니다.');
+        }
+    });
+}
+
 </script>
+<!-- 프로필 수정 관련 js -->
+<script type="text/javascript" src="/js/profile.js"></script>
+
+
 {% endblock %}

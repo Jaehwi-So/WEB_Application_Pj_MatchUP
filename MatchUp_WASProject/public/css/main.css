@@ -3,6 +3,10 @@ padding : 0;
 }
 ul{list-style: none;} /* 리스트 앞에 . 같은거 제거*/
 a{text-decoration: none;} /* 링크에 밑줄 같은거 제거*/
+.box_s_auto {
+    margin : 10px auto;
+    padding : 10px;
+}
 .btn_s {
     display: inline-block;
     padding: 0 4px;
@@ -25,10 +29,56 @@ a{text-decoration: none;} /* 링크에 밑줄 같은거 제거*/
     cursor: pointer;
     border-radius: 4px;
     background: white;
-    border: 1px solid silver;
+    border: 1.2px solid silver;
     color: green;
     height: 37px;
     line-height: 37px;
     vertical-align: top;
     font-size: 14px;
 }
+.btn_l {
+    display: inline-block;
+    padding: 0 6px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background: white;
+    border: 1.5px solid silver;
+    color: green;
+    height: 42px;
+    line-height: 42px;
+    vertical-align: top;
+    font-size: 18px;
+}
+
+.btn_f {
+    display: inline-block;
+    padding: 0 6px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background: white;
+    border: 1.5px solid ;
+    box-shadow : 0 0 2.5px green;
+    line-height: 27px;
+    vertical-align: top;
+    font-size : 25px;
+    width : 110px;
+    margin: 3px;
+    font-family : 'Do Hyeon';
+    color : darkslategrey;
+    text-align : center;
+}
+.boldgreenfont{
+    font-weight : bold;
+    color : green;
+}
+.font_title{
+    font-family : 'Do Hyeon';
+    font-size : 40px;
+    font-weight : bold;
+}
+.font_content{
+    font-size : 25px;
+}
+

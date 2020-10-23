@@ -1,0 +1,167 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+#info_box{
+  margin: auto;
+  margin-bottom : 10px;
+  padding : 15px;
+  text-align : center;
+  font-size : 20px;
+}
+#join_box{
+  margin : auto;
+  margin-top : 15px;
+  width : 500px;
+  font-size : 25px;
+  font-family : 'Do Hyeon'
+}
+.input-group { margin-bottom: 15px; }
+.input-group label { width: 30%; display: inline-block; ;}
+.input-group input { width: 60%; font-size : 23px;}
+.input_ck_group { margin-bottom: 15px; }
+.input_ck_group label { width: 30%; display: inline-block; }
+.input_ck_group .ck_lb { width: 15%; display: inline-block; }
+.input_ck_group input { width:20px; height:20px; margin-right:20px;}
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="info_box">
+  <p class="font_title">개인정보 변경</p>
+  <p class="font_content">계정의 정보를 변경합니다.</p>
+</div><hr>
+<div id="join_box">
+  <form id="join_form">
+    <div class="input-group">
+      <label>ID</label>
+      <input id="user_id" name="user_id" value="{{user.user_id}}" readonly>
+    </div>
+    <div class="input-group">
+      <label>비밀번호</label>
+      <input id="user_pwd" type="password" name="user_pwd" placeholder="숫자,특문 포함 6-20자리">
+    </div>
+    <div class="input-group">
+      <label>비밀번호 확인</label>
+      <input type="password" name="user_pwd_ck">
+    </div>
+    <div class="input-group">
+      <label>이름</label>
+      <input id="user_name" name="user_name" value="{{user.user_name}}" readonly>
+    </div>
+    <div class="input-group">
+      <label>닉네임</label>
+      <input id="nick" name="nick" value="{{user.user_nick}}">
+    </div>
+    <div class="input-group">
+      <label>이메일</label>
+      <input id="email" type="email" name="email" value="{{user.email}}">
+    </div>
+    <div class="input-group">
+      <label>생년월일</label>
+      <input id="birth" type="date" name="birth" value="{{user.birth}}">
+    </div>
+    <div class="input_ck_group">
+      <label>성별</label>
+      <label class="ck_lb">&nbsp;남성</label><input type="radio" name="gender" value="남성">
+      <label class="ck_lb">&nbsp;여성</label><input type="radio" name="gender" value="여성">
+    </div>
+    <div style="text-align:center;">
+    <input class="btn_f" onclick="insert(this.form);" value="변경완료">
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block script %}
+  <script>
+    if('{{user.gender}}' == '남성'){
+      document.getElementById('join_form').gender.value = '남성';
+    }else{
+      document.getElementById('join_form').gender.value = '여성';
+    }
+    function insert( f ) {
+      var user_id = f.user_id.value.trim();
+      var user_pwd = f.user_pwd.value.trim();
+      var user_pwd_ck = f.user_pwd_ck.value.trim();
+      var user_name = f.user_name.value.trim();
+      var nick = f.nick.value.trim();
+      var email = f.email.value;
+      var birth = f.birth.value.trim();
+      var gender = f.gender.value.trim();
+      if( user_id == '' || user_id.length < 7 || user_id.length > 15){
+        alert("아이디는 7-15자리로 입력해주세요.");
+        return;
+      }
+      if( user_pwd == ''){
+        alert("비밀번호는 필수입력 항목입니다");
+        return;
+      }
+      if( user_pwd != user_pwd_ck){
+        alert("비밀번호와 확인이 일치하지 않습니다.");
+        return;
+      }
+      if( user_name == ''){
+        alert("이름은 필수입력 항목입니다");
+        return;
+      }
+      if( nick == '' || nick.length < 2 || nick.length > 10){
+        alert("닉네임은 2~10자리로 입력해주세요.");
+        return;
+      }
+      if( birth == ''){
+        alert("생년월일은 필수입력 항목입니다");
+        return;
+      }      
+      if( gender == ''){
+        alert("성별을 체크해주세요");
+        return;
+      }     
+      var id_exp = /^[0-9a-z]+$/;
+      var pwd_exp = /^(?=.*[a-zA-Z])((?=.*\d)|(?=.*\W)).{6,20}$/
+      var str_exp = /^[a-zA-Zㄱ-힣0-9]*$/;
+      var email_exp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+      if(!id_exp.test(user_id)){
+        alert("아이디 형식이 올바르지 않습니다.");
+        return;
+      }
+      if(!pwd_exp.test(user_pwd)){
+        alert("영문과 숫자, 특수문자 중 하나를 포함하여 6~20자리의 비밀번호를 입력해주세요.");
+        return;
+      }
+      if(!str_exp.test(user_name)){
+        alert("이름의 형식이 올바르지 않습니다.");
+        return;
+      }
+      if(!email_exp.test(email)){
+        alert("이메일의 형식이 올바르지 않습니다.");
+        return;
+      }
+      if(!str_exp.test(nick)){
+        alert("닉네임은 특수문자를 사용할 수 없습니다.");
+        return;
+      }
+      var form = $("#join_form").serializeObject();
+      
+      axios.put('/user', form)
+          .then((res) => {
+            const result = res.data.res;
+            if (result == 'existNick') {
+              alert('이미 존재하는 닉네임입니다.');
+              return;
+            }
+            if (result == 'existEmail') {
+              alert('이미 존재하는 이메일입니다.');
+              return;
+            }
+            if (result == 'success') {
+              alert('수정이 완료되었습니다.');
+              location.href="/";
+              return;
+            }
+            alert('수정 중 문제가 발생했습니다.');
+            location.href="/";
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+    }
+  </script>
+{% endblock %}

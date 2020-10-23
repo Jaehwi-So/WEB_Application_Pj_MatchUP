@@ -7,6 +7,7 @@ const multer = require('multer');
 const router = express.Router();
 const path = require('path');
 const Pager = require('../util/pager');
+const { Op } = require('sequelize');
 
 //파일업로드 multer 설정
 const upload = multer({
@@ -26,7 +27,7 @@ const upload = multer({
 });
 
 //회원 가입
-router.post('/join', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   const { user_id, user_pwd, user_name, nick, email, birth, gender } = req.body;
   console.log(req.body.user_id);
   try {
@@ -55,6 +56,79 @@ router.post('/join', async (req, res, next) => {
     });
     return res.json({ res: 'success' });
   } catch (error) {
+    return res.json({ res: 'error' });
+  }
+});
+
+//회원정보 수정
+router.put('/', isLogin, async (req, res, next) => {
+  const { user_id, user_pwd, user_name, nick, email, birth, gender } = req.body;
+  console.log(req.body.user_id);
+  try {
+    let exUser;
+    exUser = await User.findOne({ 
+      where: {
+        id: {[Op.ne] : req.user.id},
+        nick: req.user.nick
+      }
+    });
+    if (exUser) {
+      return res.json({ res: 'existNick' });
+    }
+    exUser = await User.findOne({ 
+      where: {
+        id: {[Op.ne] : req.user.id},
+        email: req.user.email
+      }
+    });
+    if (exUser) {
+      return res.json({ res: 'existEmail' });
+    }
+    const hash = await bcrypt.hash(user_pwd, 12); //비밀번호 암호화
+    await User.update({
+      user_name,
+      user_id,
+      user_pwd : hash,
+      nick,
+      email,
+      birth,
+      gender
+    },{
+      where : {id : req.user.id},
+    });
+    return res.json({ res: 'success' });
+  } catch (error) {
+    return res.json({ res: 'error' });
+  }
+});
+
+//회원 탈퇴
+router.delete('/', isLogin, async (req, res, next) => {
+  try {
+    const {user_pwd} = req.body; 
+    console.log(req.body);
+    let exUser;
+    exUser = await User.findOne({ 
+      where: {
+        id:  req.user.id,
+      }
+    });
+    const result = await bcrypt.compare(user_pwd, exUser.user_pwd);
+    if (result) {
+      await User.destroy({ 
+        where: {
+          id:  req.user.id,
+        }
+      });
+      req.logout();
+      req.session.destroy();
+      return res.json({ res: 'success' });
+    }
+    else{
+      return res.json({ res: 'fail' });
+    }
+  } catch (error) {
+    console.log(error);
     return res.json({ res: 'error' });
   }
 });
@@ -199,7 +273,6 @@ router.post('/unfollow/:id', isLogin, async (req, res, next) => {
     console.error(error);
   }
 });
-
 //해당 멤버의 팔로워, 팔로잉 수 조회
 router.get('/follow/info/:id', async (req, res, next) => {
   try{  
@@ -315,6 +388,65 @@ router.get('/following/:id', async (req, res, next) => {
   }
 });
 
+//프로필 활동지역 변경
+router.put('/region/:id', isLogin, async (req, res, next) => {
+  const { region } = req.body;
+  try {
+    await User.update({
+      region
+    },{
+      where : {id : req.params.id},
+    });
+    return res.json({ res: 'success' });
+  } catch (error) {
+    return res.json({ res: 'error' });
+  }
+});
+
+//프로필 주포지션 변경
+router.put('/mainposition/:id', isLogin, async (req, res, next) => {
+  const { main_position } = req.body;
+  try {
+    await User.update({
+      main_position
+    },{
+      where : {id : req.params.id},
+    });
+    return res.json({ res: 'success' });
+  } catch (error) {
+    return res.json({ res: 'error' });
+  }
+});
+
+//프로필 부포지션 변경
+router.put('/subposition/:id', isLogin, async (req, res, next) => {
+  const { sub_position } = req.body;
+  try {
+    await User.update({
+      sub_position
+    },{
+      where : {id : req.params.id},
+    });
+    return res.json({ res: 'success' });
+  } catch (error) {
+    return res.json({ res: 'error' });
+  }
+});
+
+//프로필 소개글 변경
+router.put('/content/:id', isLogin, async (req, res, next) => {
+  const { content } = req.body;
+  try {
+    await User.update({
+      content
+    },{
+      where : {id : req.params.id},
+    });
+    return res.json({ res: 'success' });
+  } catch (error) {
+    return res.json({ res: 'error' });
+  }
+});
 
 
 module.exports = router;

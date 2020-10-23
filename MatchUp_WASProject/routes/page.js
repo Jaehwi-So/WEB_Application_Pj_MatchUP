@@ -1,7 +1,7 @@
 const express = require('express');
-//const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const { User } = require('../models');
 const router = express.Router();
+const { isLogin, isNotLogin } = require('./middlewares');
 
 router.use((req, res, next) => {
   res.locals.user = req.user;
@@ -15,7 +15,11 @@ router.get('/', (req, res) => {
 });
 
 router.get('/join', (req, res) => {
-  res.render('user_join', {});
+  res.render('user/join_form', {});
+});
+
+router.get('/update', isLogin, (req, res) => {
+  res.render('user/update_form', {});
 });
 
 router.get('/search', (req, res) => {

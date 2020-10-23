@@ -1,7 +1,8 @@
 const express = require('express');
 const passport = require('passport');
 const { isLogin, isNotLogin } = require('./middlewares');
-
+const { User } = require('../models');
+const bcrypt = require('bcrypt');
 
 const router = express.Router();
 
@@ -33,6 +34,26 @@ router.get('/logout', isLogin, (req, res) => {
   req.logout();
   req.session.destroy();
   res.redirect('/');
+});
+
+//비밀번호 확인
+router.post('/update', isLogin, async (req, res) => {
+    try{
+    const {user_pwd} = req.body; 
+    console.log(user_pwd);
+    const resuser = await User.findOne({where : {id: req.user.id}});
+    const result = await bcrypt.compare(user_pwd, resuser.user_pwd);
+    if(result){
+        res.json({res : 'success'});
+    }
+    else{
+        res.json({res : 'fail'});
+    }
+    }
+    catch(e){
+        console.error(e);
+        res.json({res : 'fail'});
+    }
 });
 
 module.exports = router; 

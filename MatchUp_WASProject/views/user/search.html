@@ -3,15 +3,9 @@
 <style>
     #info_box{
         margin : auto;
-        margin-top : 20px;
         padding : 15px;
         text-align : center;
         font-size : 20px;
-    }
-    #info_box .title{
-        font-family : 'Do Hyeon';
-        font-size : 40px;
-        font-weight : bold;
     }
     #list_box{
         margin : auto;
@@ -35,6 +29,7 @@
     }
     .info_input{
         margin-top : 8px;
+        padding : 3px;
         font-size : 20px;
     }
 
@@ -42,8 +37,9 @@
 {% endblock %}
 {% block main_content %}
 <div id="info_box">
-    <p class="title">사람 검색</p>
-    <p>함께 경기할 사람들을 검색해보세요!</p>
+    <p class="font_title">사람 검색</p>
+    <p class="font_content">함께 경기할 사람들을 검색해보세요!</p>
+    <br>
     <form>
     <select name="type" class="info_input">
         <option value = "s_name">이름 검색</option>
@@ -51,7 +47,7 @@
         <option value = "s_nick">별명 검색</option>
     </select>
     <input type="text" class="info_input" name="content">
-    <input class="btn_m" type="button" value="검색" onclick="search_ck(this.form)">
+    <input class="btn_l" type="button" value="검색" onclick="search_ck(this.form)">
     </form>
     <br><hr><br>
     <div id="list_box">
@@ -102,7 +98,7 @@ const search = (url) => {
                     idTd.textContent = x.user_id;
                     nickTd.textContent = x.nick;
                     btn_show.textContent = "프로필 보기"
-                    btn_show.className = "btn_m";
+                    btn_show.className = "btn_l";
                     //상세조회 버튼 이벤트리스너 추가
                     btn_show.addEventListener('click', () => { 
                         location.href= "/user/profile/" + x.id;
