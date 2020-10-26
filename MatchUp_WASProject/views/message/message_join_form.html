@@ -1,0 +1,53 @@
+{% extends '../message/message_layout.html' %}
+{% block style %}
+{% endblock %}
+
+{% block main_content %}
+<div id="main_box">
+  <div id="info_box">
+  <p class="font_title">팀 가입 신청</p>
+  <p class="font_content">To <b>{{target.nick}}</b>..</p>
+  </div>
+  <br><hr>
+  <div class="input-group">
+    <label>제목</label>
+    <input id="message_title">
+  </div>
+  <textarea id="message_area" rows="15" cols="70">내용 최대 1000자 입력</textarea>
+  <br><br>
+  <input id="target_id" type="hidden" value="{{target.id}}">
+  <button class="btn_l" onclick="send();">신청 완료</button>
+  <button class="btn_l" onclick="cancel();">취소</button>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  function send(){
+    const value = document.getElementById('message_area').value;
+    const title = document.getElementById('message_title').value;
+    if(value.trim() < 1 || value.trim() > 50){
+      alert('1-50자 이내의 제목을 입력해주세요');
+      return;
+    }
+    if(value.trim() < 1 || value.trim() > 1000){
+      alert('1-1000자 이내의 내용을 입력해주세요');
+      return;
+    }
+    axios.post('/message/{{target.id}}', { title : title, content :  value, targetNick : '{{target.nick}}', type : 'join', teamID : '{{teamID}}'})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('가입신청이 완료되었습니다.');
+            window.close();
+         }
+        else{
+            alert('신청에 실패했습니다.');
+            window.close();
+        }
+    });
+  }
+  function cancel(){
+    window.close();
+  }
+</script>
+{% endblock %}

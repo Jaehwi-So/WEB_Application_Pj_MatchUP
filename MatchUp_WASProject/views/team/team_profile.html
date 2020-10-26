@@ -1,0 +1,325 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+    #profile_box{
+        width : 100%;
+        margin : auto;
+        text-align : center;
+        background :white;
+    }
+    .teamname{
+        text-align : center;
+        font-size : 30px;
+    }
+    .photo{
+        text-align : center;
+    }
+    .profile_tb{
+        margin : 15px auto;
+        border-collapse : collapse;
+    }
+    .profile_tb td{
+        border : black solid 1px;
+        padding-left : 5px;
+        padding-right : 5px;
+        font-size : 11px;
+    }
+    .profile_tb th{
+        border : black solid 1px;
+        padding-left : 5px;
+        padding-right : 5px;
+        font-size : 14px;
+    }
+    .profile_label_odd{
+        background-color : lightgreen;
+    }
+    .profile_label_even{
+        background-color : rgb(112, 209, 112);
+    }
+    .profile_content{ 
+        width : 440px;
+        background-color : rgba(205, 247, 205, 0.555);
+        border : 1px dotted black;
+        margin : 18px auto;
+        padding : 15px;
+        font-size : 12px;
+        text-align : center;
+    }
+    .profile_content table{
+        margin:auto; 
+        background-color : rgba(202, 201, 201, 0.342);
+        border-collapse : collapse;
+    }
+    .profile_content table tr td{
+        padding : 3px 10px;
+        text-align: left; 
+        font-size : 12px; 
+        font-weight:bold; 
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
+    .profile_content h3{
+        font-size : 18px;
+        color :darkgreen;
+        font-family : 'Do Hyeon';
+        margin-bottom : 10px;
+    }
+    .profile_content input{
+        display : inline-block;
+        width : 90%;
+        font-size : 12px;
+        padding : 3px;
+        margin : auto;
+    }
+    .list_box{
+        margin : auto;
+        text-align : center;
+    }
+    .list_box table{
+        margin : auto;
+        margin-top : 20px;
+        border-collapse : collapse;
+    }
+    .list_box table tr th{
+        background-color: rgb(0, 161, 0);
+        border-top : 1px solid black;
+        border-bottom : 1px solid black;
+        padding : 3px;
+    }
+    .list_box table tr td{
+        background-color: white;
+        border-bottom : 1px solid black;
+        font-size : 11px;
+        text-align : center;
+        padding : 3px;
+        text-overflow:ellipsis;
+    }
+    #content_content textarea{
+        font-size : 12px;
+        padding : 5px;
+        text-overflow : ellipsis;
+        text-align : left;
+        font-family : Arial, Helvetica, sans-serif;
+    }
+    .access_btn{
+        text-align:right;
+    }
+
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="profile_box">
+    <br>
+    <p class="font_title">TEAM <span style="color:green; font-weight:bold;">{{team.team_name}}</span>
+    </p>
+    {% if isMember %}
+    <div class="access_btn"><input type="button" class="btn_l" value="팀 탈퇴" onclick="drop_team();"></div>
+    {% else %}
+    <div class="access_btn"><input type="button" class="btn_l" value="팀 가입신청" onclick="join_team();"></div>
+    {% endif %}
+    <br><hr>
+    <table class="profile_tb">
+        <tr>
+            <td rowspan = "5" width = "160" class="photo">
+                <img id="prof_photo" src='{{team.photo}}' width="150" height="150"/>
+            </td>
+            <th class="profile_label_odd" width = "80">팀명</th>
+            <td width = "200">{{team.team_name}}</td>
+        </tr>
+        <tr>    
+            <th class="profile_label_even">활동 지역</th>
+            <td>{{team.region}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_odd">평균레벨</th>
+            <td>{{team.team_level}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_odd">팀 규모</th>
+            <td>팀원 {{team.Users.length}}명</td>
+        </tr>
+        <tr>
+            <th class="profile_label_odd">머릿말</th>
+            <td>{{team.state}}</td>
+        </tr>
+    </table>
+
+    {% if user and (user.id == team.leader_idx) %}
+    <div>
+        <form id="info_update_form" method="post" enctype="multipart/form-data">
+        <input id="team_id" type="hidden" name="id" value="{{team.id}}">
+        <input id="photo_url" type="hidden" name="photo" value="">
+
+        <input id="upload_photo" type="file" name="upload_img" style="display:none">
+        <input class ="btn_l" type="button" onclick="onclick=document.getElementById('upload_photo').click()" value="사진 불러오기">
+        <input type="button" class="btn_l" value="사진 변경" onclick="update_photo(this.form)">
+        <input type="button" class="btn_l" value="팀 정보 변경" onclick="update_info(this.form)">
+        </form>   
+    </div>
+    {% endif %}
+</div>
+    <!--소개글-->
+<div class="profile_content" id="content_content">
+    <h3>소개글</h3>
+    <div id="contentP_content">
+    <textarea rows="20" cols="60" disabled>{% if team.content %}{{team.content}}{% else %}등록된 소개글이 없습니다.{% endif %}
+    </textarea>
+    {% if user and (user.id == team.leader_idx) %}
+    <button class="btn_l" onclick="edit_content();">내용 수정</button>
+    {% endif %}
+    </div>
+    <div id="contentP_edit" style="display:none;"> 
+        <textarea id="contentP_edit_value" rows="20" cols="60">{{team.content}}</textarea>
+        <button class="btn_l" onclick="update_content();">수정 완료</button>
+        <button class="btn_l" onclick="cancel_content();">취소</button>
+    </div>
+</div>
+    <br><hr><br>
+<div class="list_box">
+    <p class="font_title">멤버 목록</p>
+    <table>
+        <tr>
+            <th width="100">이름</th>
+            <th width="110">닉네임</th>
+            <th width="90">주 포지션</th>
+            <th width="90">부 포지션</th>
+            <th width="80">레벨</th>
+            <th width="50">비고</th>
+            <th width="70">프로필</th>
+        </tr>
+        {% for member in team.Users %}
+        <tr>
+            <td>{{member.user_name}}</td>
+            <td>{{member.nick}}</td>
+            <td>{{member.main_position}}</td>
+            <td>{{member.sub_position}}</td>
+            <td>{{member.user_level}}</td>
+            <td>
+                {% if member.id == team.leader_idx %}
+                팀장
+                {% else %}
+                팀원
+                {% endif %}
+            </td>
+            <td><button class="btn_m" onclick='location.href= `/user/profile/{{member.id}}`'>조회</button></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+    
+
+{% endblock %}
+
+{% block script %}
+<script>
+$(function(){
+    //프로필 사진이 없는 경우 갱신
+    if('{{team.photo}}' == "" || '{{team.photo}}' == null){
+        document.getElementById('prof_photo').src = "/img/profile_non.png";
+    }
+})
+
+//프로필 사진 저장
+const update_photo = (f) => {
+    if(f.photo.value.trim() == ''){
+        alert("바꿀 프로필 사진을 업로드해주세요");
+        return;
+    }
+    var form = $("#info_update_form").serializeObject();
+    axios.post('/team/photo', form)
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert("프로필 사진 변경이 완료되었습니다.");
+        }
+        else{
+            alert("프로필 사진 변경에 실패했습니다.");
+        }
+        //location.reload();
+    })
+    .catch((err) => {
+        alert('error');
+        console.error(err);
+    });
+};
+
+
+//사진 업로드시 미리보기 처리
+if (document.getElementById('upload_photo')) {
+    document.getElementById('upload_photo').addEventListener('change', function(e) {
+        const formData = new FormData();
+        formData.append('img', this.files[0]);
+        axios.post('/team/upload', formData)
+        .then((res) => {
+            document.getElementById('photo_url').value = res.data.url;
+            document.getElementById('prof_photo').src = res.data.url;
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+    });
+};
+
+//팀 정보 변경
+const update_info = (f) => {
+    const id = document.getElementById('team_id').value;
+    location.href = `/team/update/${id}`;
+}
+
+const edit_content = () => {
+    document.getElementById('contentP_content').style = "display:none;"
+    document.getElementById('contentP_edit').style = "display:unset;"
+}
+const cancel_content = () => {
+    document.getElementById('contentP_content').style = "display:unset;"
+    document.getElementById('contentP_edit').style = "display:none;"
+}
+const update_content = () => {
+    const value = document.getElementById("contentP_edit_value").value;
+    if(value.trim() < 10 || value.trim > 1000){
+        alert('10-1000자 이내로 입력해주세요.');
+        return;
+    }
+    axios.put('/team/content/{{team.id}}', { content :  value})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('성공적으로 변경되었습니다.');
+            location.reload();
+         }
+        else{
+            alert('변경에 실패했습니다.');
+        }
+    });
+}
+const drop_team = () => {
+    axios.delete(`/team/user/{{team.id}}`)
+    .then((res) => {
+        if(res.data.res == "authorize"){
+            alert("팀 탈퇴가 완료되었습니다. 팀장을 자동으로 위임합니다.");
+            location.reload();
+        }
+        else if(res.data.res == 'destroy'){
+            alert("팀 탈퇴가 완료되었습니다. 남은 멤버가 없어 팀이 해체됩니다.");
+            location.href = "/";
+        }
+        else if(res.data.res == 'success'){
+            alert("팀 탈퇴가 완료되었습니다.");
+            location.reload();
+        }
+        else{
+            alert("팀 탈퇴를 실패했습니다.");
+            location.reload();
+        }
+    })
+}
+
+const join_team = () => {
+    if(!'{{user}}'){
+        alert('로그인 후 이용하세요');
+        return;
+    }
+    window.open("/message/joinform/{{team.leader_idx}}?team={{team.id}}", "가입 신청", "width=550, height=450, left=300, top=50, scrollbars=yes");
+}
+</script> 
+{% endblock %}
+ 

@@ -1,0 +1,101 @@
+{% extends '../message/message_layout.html' %}
+{% block style %}
+<style>
+  .info_table{
+    margin: 10px 30px;
+    text-align:left;
+    font-size:15px;
+  }
+</style>
+{% endblock %}
+
+{% block main_content %}
+<script>
+    if('{{user.id}}' != '{{message.receiver_id}}' && '{{user.id}}' != '{{message.sender_id}}'){
+    alert('접근 권한이 없습니다.');
+    location.href = '/';
+  }
+</script>
+
+<div id="main_box">
+  <div id="info_box">
+  <p class="font_title">
+    {% if message.type == 'general' %}
+    쪽지 확인
+    {% elif message.type == 'join' %}
+    팀 가입 신청
+    {% elif message.type == 'join_approve' %}
+    팀 가입 승인
+    {% endif %}
+  </p>
+  </div>
+  <br><hr>
+  <table class="info_table">
+    <tr>
+      <th width="60">From</th>
+      <td><b style="cursor:pointer;" onclick="go_profile('{{message.sender_id}}');">{{message.sender_nick}}</b></a></td>
+    </tr>
+    <tr>
+      <th>To</th>
+      <td><b style="cursor:pointer;" onclick="go_profile('{{message.receiver_id}}');">{{message.receiver_nick}}</b></a></td>
+    </tr>
+    <tr>
+      <th>제목</th>
+      <td>{{message.title}}</td>
+    </tr>
+  </table>
+  <textarea id="message_area" rows="15" cols="70" readonly>{{message.content}}</textarea>
+  <br><br>
+  {% if message.type == 'general' %}
+    {% if user.id == message.receiver_id %}
+    <button class="btn_l" onclick="reply('{{message.sender_id}}');">답장</button>
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+    {% else %}
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+    {% endif %}
+  {% elif message.type == 'join' %}
+    {% if user.id == message.receiver_id %}
+    <input type="hidden" value="{{message.additional_info}}" id="team_id">
+    <button class="btn_l" onclick="join_accept('{{message.sender_id}}');">가입 승인</button>
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+    {% else %}
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+    {% endif %}
+  {% else %}
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+  function reply(id){
+    location.href = "/message/form/" + id;
+  }
+  function cancel(){
+    window.close();
+  }
+
+  function go_profile(id){
+    opener.location.href = "/user/profile/" + id;
+    window.close();
+  }
+
+  function join_accept(id){
+    const team_id = document.getElementById('team_id').value;
+    axios.post('/team/user/{{message.sender_id}}', { teamID : team_id, senderID : '{{message.receiver_id}}'})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('가입을 승인하였습니다.');
+            window.close();
+         }
+        else{
+            alert('승인에 실패했습니다.');
+            window.close();
+        }
+    });
+  }
+</script>
+{% endblock %}

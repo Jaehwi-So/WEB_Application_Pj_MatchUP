@@ -2,7 +2,7 @@
 {% block style %}
 <style>
     #profile_box{
-        width : 95%;
+        width : 100%;
         margin : auto;
         background :white;
     }
@@ -19,13 +19,14 @@
     }
     .profile_tb td{
         border : black solid 1px;
-        padding-left : 10px;
-        padding-right : 10px;
+        padding-left : 5px;
+        padding-right : 5px;
+        font-size : 11px;
     }
     .profile_tb th{
         border : black solid 1px;
-        padding-left : 10px;
-        padding-right : 10px;
+        padding-left : 5px;
+        padding-right : 5px;
     }
     .profile_label_odd{
         background-color : lightgreen;
@@ -58,59 +59,60 @@
     }
 
     #update_ck_box{
-        width : 600px;
-        border : 1.5px solid black;
-        padding : 15px;
+        width : 400px;
+        border : 1px solid black;   
+        padding : 10px;
         text-align : center;
-        margin : 20px auto;
+        margin : 15px auto;
         display : none;
     }
     #update_ck_box label{
-        font-size : 30px;
+        font-size : 18px;
         font-family : 'Do Hyeon';
         width : 200px; display: inline-block;
+        margin-bottom : 6px;
     }
     #update_ck_box input{
-        font-size : 20px;
-        padding : 5px;
+        font-size : 14px;
+        padding : 2px;
     }
-    .profile_content{
-        width : 558px;
+    .profile_content{ 
+        width : 440px;
         background-color : rgba(205, 247, 205, 0.555);
-        border : 1.5px dotted black;
-        margin : 25px auto;
-        padding : 25px;
-        font-size : 18px;
+        border : 1px dotted black;
+        margin : 18px auto;
+        padding : 15px;
+        font-size : 12px;
         text-align : center;
     }
+    .profile_content table{
+        margin:auto; 
+        background-color : rgba(202, 201, 201, 0.342);
+        border-collapse : collapse;
+    }
+    .profile_content table tr td{
+        padding : 3px 10px;
+        text-align: left; 
+        font-size : 12px; 
+        font-weight:bold; 
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
     .profile_content h3{
-        font-size : 30px;
+        font-size : 18px;
         color :darkgreen;
         font-family : 'Do Hyeon';
         margin-bottom : 10px;
     }
     .profile_content input{
         display : inline-block;
-        margin-bottom : 15px;
-        font-size : 18px;
+        width : 90%;
+        font-size : 12px;
         padding : 3px;
         margin : auto;
     }
-    .region_tb{
-        margin:auto; 
-        background-color : rgba(202, 201, 201, 0.342);
-        border-collapse : collapse;
-    }
-    .region_tb tr td{
-        padding : 5px;
-        text-align: left; 
-        font-size:25px; 
-        font-weight:bold; 
-        border-top: 1px solid black;
-        border-bottom: 1px solid black;
-    }
     #content_content textarea{
-        font-size : 18px;
+        font-size : 12px;
         padding : 5px;
         text-overflow : ellipsis;
         text-align : left;
@@ -131,13 +133,13 @@
     <br><hr><br>
     <table class="profile_tb">
         <tr>
-            <td rowspan = "5" width = "300" class="photo">
-                <img id="prof_photo" src='{{profile.photo}}' width="255" height="255"/>
+            <td rowspan = "5" width = "210" class="photo">
+                <img id="prof_photo" src='{{profile.photo}}' width="200" height="200"/>
             </td>
-            <th class="profile_label_odd" width = "100">이름</th>
-            <td width = "115">{{profile.user_name}}</td>
+            <th class="profile_label_odd" width = "80">이름</th>
+            <td width = "150">{{profile.user_name}}</td>
         </tr>
-        <tr>
+        <tr>    
             <th class="profile_label_even">ID</th>
             <td>{{profile.user_id}}</td>
         </tr>
@@ -162,7 +164,7 @@
                 <input type="hidden" name="id" value="{{profile.id}}">
                 <input id="photo_url" type="hidden" name="photo" value="">
                 <input id="upload_photo" type="file" name="upload_img" style="display:none">
-                <input class ="btn_m" type="button" onclick="onclick=document.all.upload_img.click()" value="사진 불러오기">
+                <input class ="btn_m" type="button" onclick="onclick=document.getElementById('upload_photo').click()" value="사진 불러오기">
                 <input class ="btn_m" type="button" onclick="update_photo(this.form);" value="사진 수정">
             </td>
             </form>
@@ -175,43 +177,53 @@
                 <input id="follow_btn" class ="btn_l" type="button" onclick="follow(this.form);" value="팔로우">
                 <input id="unfollow_btn" class ="btn_l" type="hidden" onclick="unfollow(this.form);" value="언팔로우">
             </td>
-            <td colspan="2"><input class ="btn_l" type="button" onclick="follow();" value="팀 초대"></td>
+            <td><input class ="btn_l" type="button" onclick="follow();" value="팀 초대"></td>
+            <td><input class ="btn_l" type="button" onclick="message();" value="쪽지"></td>
             </form>
             {% endif %}
         </tr>
     </table>
     <div id="update_ck_box">
-        <label>비밀번호 확인 </label><input type="password" id="input_pwd"><br><br><hr><br>
-        <input class ="btn_l" type="button" onclick="update_info();" value="회원정보 변경">
-        <input class ="btn_l" type="button" onclick="user_del();" value="회원 탈퇴">  
-        <input class ="btn_l" type="button" onclick="update_cancel();" value="취소">
+        <label>비밀번호 확인 </label><input type="password" id="input_pwd"><br>
+        <button class ="btn_l" onclick="update_info();">회원정보 변경</button>
+        <button class ="btn_l" onclick="user_del();" >회원 탈퇴</button>
+        <button class ="btn_l" onclick="update_cancel();">취소</button>
     </div>
 </div>
 <!--활동 지역-->
-<div class="profile_content">
-    <h3>활동 지역</h3>
-    <div id="region_content" style="font-size : 20px;">
-        {% if profile.region %}
-        {{profile.region}}
-        {% else %}
-        등록된 활동 지역이 없습니다.
-        {% endif %}
-        {% if user and (user.id == profile.id) %}
-        <br><br><button class="btn_l" onclick="edit_region();">내용 수정</button>
-        {% endif %}
-    </div>
-    <div id="region_edit" style="display:none;">
-        <input id="region_edit_value" value="{{profile.region}}"><br><br>
-        <button class="btn_l" onclick="update_region();">수정 완료</button>
-        <button class="btn_l" onclick="cancel_region();">취소</button>
-    </div>
-</div>
 <!--포지션-->
-<div class="profile_content" id="content_region">
-    <table class="region_tb">
+<div class="profile_content">
+    <table>
         <tr>
-            <td width="150px"> <h3>메인 포지션</h3> </td>
-            <td width="250px"> 
+            <td width="150"> <h3>활동 지역</h3> </td>
+            <td width="250"> 
+                <div id="region_content1">
+                {% if profile.region %}
+                {{profile.region}}
+                {% else %}
+                등록된 지역이 없습니다.
+                {% endif %}
+                </div>
+                <div id="region_edit1" style="display:none;">
+                    <input id="region_edit_value" value="{{profile.region}}">
+                </div>      
+            </td>
+            <td width="150">
+                {% if user and (user.id == profile.id) %}
+                <div id="region_content2" >
+                <button class="btn_m" onclick="edit_region();">내용 수정</button>
+                </div>
+                <div id="region_edit2" style="display:none;">
+                <button class="btn_m" onclick="update_region();">수정 완료</button>
+                <button class="btn_m" onclick="cancel_region();">취소</button>
+                </div>  
+                {% endif %}
+            </td>
+            </div>
+        </tr>
+        <tr>
+            <td width="150"> <h3>메인 포지션</h3> </td>
+            <td width="250"> 
                 <div id="m_position_content1">
                 {% if profile.main_position %}
                 {{profile.main_position}}
@@ -223,10 +235,10 @@
                     <input id="m_position_edit_value" value="{{profile.main_position}}">
                 </div>      
             </td>
-            <td width="150px">
+            <td width="150">
                 {% if user and (user.id == profile.id) %}
                 <div id="m_position_content2" >
-                <button class="btn_l" onclick="edit_m_position();">내용 수정</button>
+                <button class="btn_m" onclick="edit_m_position();">내용 수정</button>
                 </div>
                 <div id="m_position_edit2" style="display:none;">
                 <button class="btn_m" onclick="update_m_position();">수정 완료</button>
@@ -237,8 +249,8 @@
             </div>
         </tr>
         <tr>
-            <td width="150px"> <h3>부 포지션</h3> </td>
-            <td width="250px"> 
+            <td width="150"> <h3>부 포지션</h3> </td>
+            <td width="250"> 
                 <div id="s_position_content1">
                 {% if profile.sub_position %}
                 {{profile.sub_position}}
@@ -250,10 +262,10 @@
                     <input id="s_position_edit_value" value="{{profile.sub_position}}">
                 </div>      
             </td>
-            <td width="150px">
+            <td width="150">
                 {% if user and (user.id == profile.id) %}
                 <div id="s_position_content2" >
-                <button class="btn_l" onclick="edit_s_position();">내용 수정</button>
+                <button class="btn_m" onclick="edit_s_position();">내용 수정</button>
                 </div>
                 <div id="s_position_edit2" style="display:none;">
                 <button class="btn_m" onclick="update_s_position();">수정 완료</button>
@@ -269,15 +281,14 @@
 <div class="profile_content" id="content_content">
     <h3>소개글</h3>
     <div id="contentP_content">
-    <textarea rows="20" cols="50" disabled>{% if profile.content %}{{profile.content}}{% else %}등록된 소개글이 없습니다.{% endif %}
+    <textarea rows="20" cols="60" disabled>{% if profile.content %}{{profile.content}}{% else %}등록된 소개글이 없습니다.{% endif %}
     </textarea>
     {% if user and (user.id == profile.id) %}
     <button class="btn_l" onclick="edit_content();">내용 수정</button>
     {% endif %}
     </div>
-
-    <div id="contentP_edit" style="display:none;">
-        <textarea id="contentP_edit_value" rows="20" cols="50">{{profile.content}}</textarea>
+    <div id="contentP_edit" style="display:none;"> 
+        <textarea id="contentP_edit_value" rows="20" cols="60">{{profile.content}}</textarea>
         <button class="btn_l" onclick="update_content();">수정 완료</button>
         <button class="btn_l" onclick="cancel_content();">취소</button>
     </div>
@@ -318,12 +329,16 @@ $(function(){
     });
 });
 const edit_region = () => {
-    document.getElementById('region_content').style = "display:none;"
-    document.getElementById('region_edit').style = "display:unset;"
+    document.getElementById('region_content1').style = "display:none;"
+    document.getElementById('region_content2').style = "display:none;"
+    document.getElementById('region_edit1').style = "display:unset;"
+    document.getElementById('region_edit2').style = "display:unset;"
 }
 const cancel_region = () => {
-    document.getElementById('region_content').style = "display:unset;"
-    document.getElementById('region_edit').style = "display:none;"
+    document.getElementById('region_content1').style = "display:unset;"
+    document.getElementById('region_content2').style = "display:unset;"
+    document.getElementById('region_edit1').style = "display:none;"
+    document.getElementById('region_edit2').style = "display:none;"
 }
 const update_region = () => {
     const value = document.getElementById("region_edit_value").value;
@@ -427,6 +442,13 @@ const update_content = () => {
     });
 }
 
+const message = () => {
+    if(!'{{user}}'){
+        alert('로그인 후 이용하세요');
+        return;
+    }
+    window.open("/message/form/{{profile.id}}", "쪽지 보내기", "width=550, height=450, left=300, top=50, scrollbars=yes");
+}
 </script>
 <!-- 프로필 수정 관련 js -->
 <script type="text/javascript" src="/js/profile.js"></script>

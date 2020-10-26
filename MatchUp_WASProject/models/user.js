@@ -102,6 +102,8 @@ module.exports = class User extends Sequelize.Model {
       as: 'Followings', //팔로잉 목록
       through: 'Follow',  //생성할 모델 이름 Follow
     });
+    //가입된 팀의 목록
+    db.User.belongsToMany(db.Team, { through: 'Belong' });
   }
 };
 

@@ -3,13 +3,13 @@
 <style>
     #info_box{
         margin : auto;
-        padding : 15px;
+        padding : 10px;
         text-align : center;
-        font-size : 20px;
+        font-size : 15px;
     }
     #list_box{
         margin : auto;
-        width : 800px;
+        width : 600px;
         text-align : center;
     }
     #list_box table{
@@ -20,17 +20,18 @@
         background-color: rgb(0, 161, 0);
         border-top : 1px solid black;
         border-bottom : 1px solid black;
-        padding : 5px;
+        padding : 3px;
     }
     #list_box table tr td{
         background-color: white;
         border-bottom : 1px solid black;
-        padding : 5px;
+        padding : 3px;
+        text-overflow:ellipsis;
     }
     .info_input{
-        margin-top : 8px;
-        padding : 3px;
-        font-size : 20px;
+        margin-top : 5px;
+        padding : 2px;
+        font-size : 15px;
     }
 
 </style>
@@ -72,7 +73,7 @@ const search = (url) => {
             const list = document.getElementById('search_list');
             const pager = document.getElementById('pager');
             list.innerHTML = 
-            '<tr><th width="150">프로필 사진</th><th width="120">이름</th><th width="150">ID</th><th width="200">닉네임</th><th width=150">상세보기</th></tr>';
+            '<tr><th width="90">프로필 사진</th><th width="90">이름</th><th width="90">ID</th><th width="150">닉네임</th><th width=120">상세보기</th></tr>';
             pager.innerHTML = "";
             if(res.data.res == 'success'){
                 const member = res.data.member;
@@ -85,8 +86,8 @@ const search = (url) => {
                     const showTd = document.createElement('td');
                     const btn_show = document.createElement('button')
                     const imgElement = document.createElement('img');
-                    imgElement.width = "120";
-                    imgElement.height = "120"
+                    imgElement.width = "90";
+                    imgElement.height = "90"
                     if(x.photo == "" || x.photo == null){
                         imgElement.src = '/img/profile_non.png'
                     }

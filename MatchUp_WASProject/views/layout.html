@@ -10,27 +10,27 @@
     header{
       position : relative;
       margin : auto;
-      margin-top : 50px;
-      width : 1250px;
+      margin-top : 30px;
+      width : 900px;
       background-color: green;
     }
     #head_banner{
       margin : auto;
-      height : 150px;
+      height : 100px;
       background-color: green;
     }
     #head_title{
       margin : auto;
       text-align : center;
-      width : 600px;
-      font-size : 90px;
-      padding-top : 20px;
+      width : 450px;
+      font-size : 55px;
+      padding-top : 5px;
       font-family : 'Do Hyeon';
       font-weight : 'bold';
     }
     #head_navi{
       margin : auto;
-      height : 60px;
+      height : 35px;
       cursor: pointer;
     }
     #head_navi ul{
@@ -46,11 +46,11 @@
       color: black;
       display: block;
       height: 100%;
-      border-right: 5px solid gray;
-      border-bottom: 5px solid gray;
+      border-right: 3px solid gray;
+      border-bottom: 3px solid gray;
       text-align: center;
       background: white;
-      font-size: 40px;
+      font-size: 22px;
       font-family: 'Do Hyeon';
     }
     .navi_left{
@@ -61,54 +61,58 @@
       margin-top : 20px;
       margin-bottom : 100px;
       position : relative;
-      width : 1200px;
-      padding : 25px;
+      width : 856px;
+      padding : 20px;
       background-color : rgb(190, 245, 190);
       overflow : hidden;
       border : 2px solid black;
     }
-		#main_navi{
-			width : 260px;
+		#main_navi{ 
+			width : 190px;  
       background : pink;
 			float : left;	
-		}
-		#main_content{
-      width : 900px; padding: 30px 10px;
+		}   
+		#main_content{  
+      width : 617px; padding: 30px 15px; 
       border : 1.5px solid black;
       margin-left : 10px;
       background : white;
 			float : right;
     }
-    #user_box{
-      width : 226px; height : 300px;
-      padding : 15px;
+    #user_box{ 
+      width : 167px; height : 240px;
+      padding : 10px; 
       background : lightgray;
       color : black;
-      border : 2px solid black;
+      border : 1.5px solid black;
       margin : auto; 
+    }
+    #user_box table{
+      margin-top : 10px;
+      margin-bottom : 5px;
     }
     #login_form{
       text-align : center;
     }
     .login_inputbox h1{
       font-family : 'Do Hyeon';
-      font-size : 45px;
+      font-size : 30px;
       margin-bottom : 10px;
       margin-top : 10px;
     }
     .login_inputbox p{
-      width: 200px; 
+      width: 150px; 
       margin : auto; 
       margin-bottom:10px;
       text-align : center;
-      font-size : 25px;
+      font-size : 18px;
     }
     .login_inputbox input {
       display : block;
-      width: 200px; 
-      font-size : 22px;
+      width: 150px; 
+      font-size : 15px;
       margin : auto; 
-      margin: 15px auto;
+      margin: 10px auto;
       padding : 3px;
     }
     #user_box{
@@ -117,7 +121,7 @@
     }
     #user_box h2{
       margin-top : 10px;
-      font-size : 25px;
+      font-size : 15px;
     }
     #user_box p{
       font-size : 25px;
@@ -136,12 +140,12 @@
   <header>
     <div id="head_banner">
       <p id="head_title">
-        <img src="/img/football.png" width="90px" height="90px">MatchUP!!</p>
+        <img src="/img/football.png" width="70px" height="70px">MatchUP!!</p>
     </div>
     <div id="head_navi">
         <ul>
            <li><a class="navi_left" href='/search'>사람 찾기</a></li>
-           <li><a href="#1">팀 찾기</a></li>
+           <li><a href="/team/list">팀 찾기</a></li>
            <li><a href="#1">팀 관리</a></li>
            <li><a href="#2">대전 찾기</a></li>
         </ul>
@@ -154,17 +158,17 @@
       <div id="user_box">
         {% if user and user.id %}
         {% if user.photo == "" or user.photo == null %}
-        <img id="per_photo" src='/img/profile_non.png' width="130" height="130"/>
+        <img id="per_photo" src='/img/profile_non.png' width="90" height="90"/>
         {% else %}
-        <img id="per_photo" src='{{user.photo}}' width="130" height="130"/>
+        <img id="per_photo" src='{{user.photo}}' width="90" height="90"/>
         {% endif %}
         <hr>
-        <h2><span class="boldgreenfont">{{user.nick}}</span>님 환영합니다</h2>
+        <h2><span class="boldgreenfont">{{user.nick}}</span>님<br> 환영합니다</h2>
+        <button id="btn_myprofile" class="btn_log" onclick="my_profile();" style="margin-top : 5px;">프로필</button>
+        <button id="btn_logout" class="btn_log" onclick="logout();" style="margin-top : 5px;">로그아웃</button>
+        <button id="btn_logt" class="btn_log" onclick="go_message_list();" style="margin-top : 5px;">쪽지 {{issue_num}}</button>
+        <hr style="margin-top : 5px;">
         <table>
-          <tr>
-            <td><button id="btn_myprofile" class="btn_f" onclick="my_profile();">내 프로필</button></td>
-            <td><button id="btn_logout" class="btn_f" onclick="logout();">로그아웃</button></td>
-          </tr>
           <tr>
             <td><button class="btn_f" onclick="prof_follower_list();">팔로워<br><span class="boldgreenfont">{{user_followerNum}}</span></button></td>
             <td><button class="btn_f" onclick="prof_following_list();">팔로잉<br><span class="boldgreenfont">{{user_followingNum}}</span></td>
@@ -178,8 +182,8 @@
             <input id="login_id" name="user_id" placeholder="아이디 입력">
             <input id="login_pwd" type="password" name="user_pwd" placeholder="비밀번호 입력">
           </div>
-          <input id="btn_login" type="button" class="btn_f" value="로그인" onclick="login();">
-          <input id="join" type="button" class="btn_f" value="회원가입" onclick="location.href='/join'">
+          <input id="btn_login" type="button" class="btn_log" value="로그인" onclick="login();" >
+          <input id="join" type="button" class="btn_log" value="회원가입" onclick="location.href='/join'" >
         </form>
         {% endif %}
       </div>
@@ -240,6 +244,10 @@
     function prof_following_list(){
         location.href = '/user/following/{{user.id}}';
     };
+
+    const go_message_list = () => {
+      location.href = '/message/list/{{user.id}}';
+    }
   </script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   {% block script %}

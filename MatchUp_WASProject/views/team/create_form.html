@@ -1,0 +1,90 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+#info_box{
+    margin: auto;
+    margin-bottom : 10px;
+    padding : 10px;
+    text-align : center;
+    font-size : 15px;
+  }
+#form_box{
+    margin : auto;
+    margin-top : 15px;
+    width : 400px;
+    font-size : 20px;
+    font-family : 'Do Hyeon'
+}
+.input-group { margin-bottom: 15px; }
+.input-group label { width: 25%; display: inline-block; font-size : 16px;}
+.input-group input { width: 70%; font-size : 12px;}
+.input_ck_group { margin-bottom: 15px; }
+.input_ck_group label { width: 30%; display: inline-block; }
+.input_ck_group .ck_lb { width: 15%; display: inline-block; }
+.input_ck_group input { width:15px; height:15px; margin-right:15px;}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<div id="info_box">
+    <p class="font_title">팀 생성</p>
+    <p class="font_content">새로운 팀을 생성해보세요!</p>
+  </div><hr>
+  <div id="form_box">
+    <form id="create_form">
+        <input name="leader_idx" type="hidden" value="{{user.id}}">   
+        <div class="input-group">
+            <label>팀 이름</label>
+            <input name="team_name" placeholder="1-15자리">
+        </div>
+        <div class="input-group">
+            <label>활동 지역</label>
+            <input name="region" placeholder="1-20자리 ex)서울 용산구, 서울 전체">
+        </div>
+        <div class="input-group">
+            <label>팀 상태</label>
+            <input name="state" placeholder="간략하게 팀 상태를 나타내보세요.(1-30자리) ex)대전 찾는 중">
+        </div>
+        <div class="input-group">
+            <label>검색 키워드</label>
+            <input name="keyword" placeholder="#대학생 #서울">
+        </div>
+        <div style="text-align:center;">
+        <button class="btn_l" onclick="insert(this.form);">팀 생성</button>
+        </div>
+    </form>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    function insert( f ) {
+        //team_name leader_idx keyword region eam_level content photo
+        var team_name = f.team_name.value.trim();
+        var keyword = f.keyword.value.trim();
+        var region = f.keyword.value.trim();
+        var state = f.state.value.trim();
+        if( team_name.length < 1 || team_name.length > 15){
+            alert("팀 이름은 1-15자리 이내로 입력해주세요.");
+            return;
+        }
+        if( region.length < 1 || region.length > 30){
+            alert("1-20자리 이내의 활동 지역을 입력해주세요.");
+            return;
+        }
+        if( state.length < 1 || state.length > 30){
+            alert("1-30자리 이내의 팀 상태를 입력해주세요.");
+            return;
+        }
+        if( keyword.length < 1 ){
+            alert("검색 키워드를 입력해주세요.");
+            return;
+        }
+        f.action = "/team";
+        f.method = "POST";
+        alert('팀 생성이 완료되었습니다.');
+        f.submit();
+    }
+</script>
+{% endblock %}

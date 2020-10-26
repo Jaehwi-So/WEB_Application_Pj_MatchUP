@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MatchUP!!</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link href='https://fonts.googleapis.com/css?family=Do+Hyeon' rel='stylesheet' type='text/css'>
+  <style>
+      #main_box{
+          width:500px;
+          height:350px;
+          margin:auto;
+          padding:25px;
+          text-align:center;
+      }
+      #info_box{
+        background: lightgreen;
+      }
+      #message_area{
+        font-size : 12px;
+        padding : 5px;
+        text-overflow : ellipsis;
+        text-align : left;
+        font-family : Arial, Helvetica, sans-serif;
+      }
+      .content_font{font-size : 12px;}
+      .input-group { margin: 15px auto; }
+      .input-group label { width: 15%; display: inline-block;}
+      .input-group input { width: 70%; font-size : 12px;}
+  </style>
+  {% block style %}
+  {% endblock %}
+  <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/main.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+  </script>
+</head>
+<body>
+  <main>
+    {% block main_content %}
+
+    {% endblock %}
+  </main>
+  <script>
+
+  </script>
+  
+  {% block script %}
+  {% endblock %}
+</body>
+</html>

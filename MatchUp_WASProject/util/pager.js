@@ -4,6 +4,7 @@ module.exports = class Pager{
     //let page = Pager.getPage(url, curPage, contentSize, pageSize, skipSize, rowTotal);
     //url, 쿼리 유무, 현재 페이지, 페이지 컨텐츠 수, 한 화면 페이지네이션 개수, 생략 컨텐츠 수, 총 로우 개수
     static getPage = (pageURL, isQuery, curPage, contentSize, pageSize, skipSize, rowTotal, isAjax, ajaxF) => {
+        try{
         const start = ((Math.ceil(curPage / pageSize) - 1) * pageSize) + 1;   //페이지네이션 시작 번호
         let end = (start + pageSize) - 1;   //페이지네이션 끝 번호
         const total = Math.ceil(rowTotal / contentSize);    //페이지네이션 전체 수
@@ -88,6 +89,10 @@ module.exports = class Pager{
         }
         else pager += "next";
         return pager;
+    }
+    catch(e){
+        console.error(e);
+    }
     }
 };
 

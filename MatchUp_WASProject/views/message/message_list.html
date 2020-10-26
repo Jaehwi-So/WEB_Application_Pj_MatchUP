@@ -1,0 +1,120 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+    #info_box{
+        margin : auto;
+        padding : 10px;
+        text-align : center;
+        font-size : 15px;
+    }
+    #info_box .title{
+        font-family : 'Do Hyeon';
+        font-size : 40px;
+        font-weight : bold;
+    }
+    #list_box{
+        margin : auto;
+        width : 600px;
+        text-align : center;
+    }
+    #list_box table{
+        margin : auto;
+        border-collapse : collapse;
+    }
+    #list_box table tr th{
+        background-color: rgb(0, 161, 0);
+        border-top : 1px solid black;
+        border-bottom : 1px solid black;
+        font-size : 13px;
+        padding : 3px;
+    }
+    #list_box table tr td{
+        border-bottom : 1px solid black;
+        padding : 6px 3px;
+        text-overflow:ellipsis;
+        font-size : 11px;
+    }
+    .info_input{
+        margin-top : 5px;
+        padding : 2px;
+        font-size : 15px;
+    }
+    .new_blink{
+        font-family : 'Do Hyeon';
+        font-size : 14px;
+		color : red;
+		animation: blink-animation 1s steps(5, start) infinite alternate;
+  		-webkit-animation: blink-animation 1s steps(5, start) infinite alternate;
+	}
+    @keyframes blink-animation {
+		from { visibility: visibility; }
+		to { visibility: hidden;}
+	}
+	@-webkit-keyframes blink-animation {
+		from {visibility: visibility;}
+		to {visibility: hidden;}
+    }   
+    #list_box table tr:hover{
+        cursor:pointer;
+        background-color: lightgreen; 
+    }
+
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="info_box">
+    <p class="font_title">
+        쪽지함
+    </p>
+    <br><hr><br>
+    <div id="list_box">
+        <table id="search_list" width="600px">
+            <tr>
+                <th width="90" colspan="2">유형</th>
+                <th width="150">제목</th>
+                <th width="100">From</th>
+                <th width="100">To</th>
+                <th width="100">날짜</th>
+            </tr>
+            {% for message in messages %}
+            <tr class="list_hover" onclick="message_ck('{{message.id}}');">
+                <td width="30">
+                    {% if not message.isRead and message.receiver_id == user.id %}<span class="new_blink">NEW!</span> 
+                    {% elif message.sender_id == user.id %}발신
+                    {% else %}수신
+                    {% endif %}
+                </td>
+                <td width="60">
+                    <input id="message_type" type="hidden" value="{{message.type}}">
+                    {% if message.type == 'general' %} 일반
+                    {% elif message.type == 'join' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">가입신청</span>
+                    {% elif message.type == 'join_approve' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">가입승인</span>
+                    {% endif %}
+                </td>
+                <td width="150"><b>{{message.title}}</b></td>
+                <td width="100">{{message.sender_nick}}</td>
+                <td width="100">{{message.receiver_nick}}</td>
+                <td width="100"><span style="color:blue">{{message.createdAt.getFullYear()}}.{{message.createdAt.getMonth()}}.{{message.createdAt.getDate()}}</span></td>    
+            </tr>
+            {% endfor %}           
+        </table>
+    </div>
+    <br>
+    <div id="pager">
+        {{pager|safe}}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+if('{{user.id}}' != '{{target}}'){
+    alert('접근 권한이 없습니다.');
+    location.href = '/';
+}
+const message_ck = (id) => {
+    window.open(`/message/receive/${id}`, "쪽지 보기", "width=550, height=450, left=300, top=50, scrollbars=yes");
+}
+</script>
+{% endblock %}

@@ -24,17 +24,17 @@ a{text-decoration: none;} /* 링크에 밑줄 같은거 제거*/
 
 .btn_m {
     display: inline-block;
-    padding: 0 6px;
+    padding: 0 4px;
     text-decoration: none;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 3px;
     background: white;
     border: 1.2px solid silver;
     color: green;
-    height: 37px;
-    line-height: 37px;
+    height: 24px;
+    line-height: 24px;
     vertical-align: top;
-    font-size: 14px;
+    font-size: 10px;
 }
 .btn_l {
     display: inline-block;
@@ -45,26 +45,41 @@ a{text-decoration: none;} /* 링크에 밑줄 같은거 제거*/
     background: white;
     border: 1.5px solid silver;
     color: green;
-    height: 42px;
-    line-height: 42px;
+    height: 28px;
+    line-height: 28px;
     vertical-align: top;
-    font-size: 18px;
+    font-size: 13px;
 }
-
-.btn_f {
+.btn_log {
     display: inline-block;
-    padding: 0 6px;
+    padding: 0 4px;
     text-decoration: none;
     cursor: pointer;
     border-radius: 5px;
     background: white;
-    border: 1.5px solid ;
-    box-shadow : 0 0 2.5px green;
-    line-height: 27px;
+    border: 1px solid black;
+    color: green;
+    height: 28px;
+    line-height: 28px;
     vertical-align: top;
-    font-size : 25px;
-    width : 110px;
-    margin: 3px;
+    font-size: 13px;
+    font-family : 'Do Hyeon';
+}
+
+.btn_f {
+    display: inline-block;
+    padding: 0 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background: white;
+    border: 1px solid black;
+    box-shadow : 0 0 2px green;
+    line-height: 17px;
+    vertical-align: top;
+    font-size : 17px;
+    width : 75px;
+    margin: 2px;
     font-family : 'Do Hyeon';
     color : darkslategrey;
     text-align : center;
@@ -75,10 +90,13 @@ a{text-decoration: none;} /* 링크에 밑줄 같은거 제거*/
 }
 .font_title{
     font-family : 'Do Hyeon';
-    font-size : 40px;
+    font-size : 30px;
+}
+.font_sub_title{
+    font-size : 25px;
     font-weight : bold;
 }
 .font_content{
-    font-size : 25px;
+    font-size : 18px;
 }
 

@@ -141,12 +141,12 @@ router.get('/profile/:id', async (req, res, next) => {
       res.render('profile/profile', {profile});
     }
     else{
-      res.render('/', {});
+      res.render('main', {});
     }
   } 
   catch (error) {
     console.log(error);
-    res.render('/', {});
+    res.render('main', {});
   }
 });
 
@@ -348,7 +348,7 @@ router.get('/follower/:id', async (req, res, next) => {
   }
   catch(error){
     console.error('error:', error);
-    res.render('/');
+    res.render('main');
   }
 });
 
@@ -384,7 +384,7 @@ router.get('/following/:id', async (req, res, next) => {
   }
   catch(error){
     console.error('error:', error);
-    res.render('/');
+    res.render('main');
   }
 });
 

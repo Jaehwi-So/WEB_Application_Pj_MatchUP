@@ -31,6 +31,7 @@
         background-color: white;
         border-bottom : 1px solid black;
         padding : 3px;
+        font-size : 13px;
         text-overflow:ellipsis;
     }
     .info_input{
@@ -38,41 +39,38 @@
         padding : 2px;
         font-size : 15px;
     }
-
 </style>
 {% endblock %}
+
 {% block main_content %}
+<button class="btn_l" onclick="create_team();">새로운 팀 생성</button>
 <div id="info_box">
     <p class="font_title">
-        {% if list_type == 'follower' %}
-        {{target_name}}님의 팔로워 목록
-        {% else %}
-        {{target_name}}님의 팔로잉 목록
-        {% endif %}
+        팀 목록
     </p>
     <br><hr><br>
     <div id="list_box">
         <table id="search_list">
             <tr>
-                <th width="90">프로필 사진</th>
-                <th width="90">이름</th>
-                <th width="90">ID</th>
-                <th width="150">닉네임</th>
-                <th width="120">상세보기</th>
+                <th width="90">팀 사진</th>
+                <th width="90">팀명</th>
+                <th width="120">활동 지역</th>
+                <th width="150">검색어</th>
+                <th width="90">상세보기</th>
             </tr>
-            {% for follow in member %}
+            {% for team in teams %}
             <tr>
-                {% if follow.photo %}
-                <td><img src='{{follow.photo}}' width="90" height="90"></td>
+                {% if team.photo %}
+                <td><img src='{{team.photo}}' width="90" height="90"></td>
                 {% else %}
                 <td><img src='/img/profile_non.png' width="90" height="90"></td>
                 {% endif %}
-                <td>{{follow.user_name}}</td>
-                <td>{{follow.user_id}}</td>
-                <td>{{follow.nick}}</td>
-                <td><input type="button" class="btn_m" value="프로필 보기" onclick="location.href= '/user/profile/{{follow.id}}'"></td>
+                <td>{{team.team_name}}</td>
+                <td>{{team.region}}</td>
+                <td>{{team.keyword}}</td>
+                <td><input type="button" class="btn_m" value="프로필 보기" onclick="location.href='/team/{{team.id}}'"></td>
             </tr>
-            {% endfor %}           
+            {% endfor %}     
         </table>
     </div>
     <br>
@@ -80,11 +78,17 @@
         {{pager|safe}}
     </div>
 </div>
-
 {% endblock %}
 
 {% block script %}
 <script>
-
-</script>
+const create_team = () => {
+    if(!'{{user}}'){
+        alert('로그인 후 이용하세요');
+        return;
+    }
+    location.href = '/team/create';
+}
+</script> 
 {% endblock %}
+

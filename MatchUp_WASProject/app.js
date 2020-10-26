@@ -11,10 +11,15 @@ dotenv.config();
 const pageRouter = require('./routes/page');
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
+const teamRouter = require('./routes/team');
+const messageRouter = require('./routes/message');
 const { sequelize } = require('./models');
+
+const mongo_connect = require('./schemas');   
+mongo_connect();    //몽고디비 연결
+
 const fs = require('fs'); //파일스트림
 const passportConfig = require('./passport');   
-
 
 const app = express();
 passportConfig(); // 패스포트 설정
@@ -63,6 +68,8 @@ app.use(passport.session());//passport.session 미드웨어는 req.session 객�
 app.use('/', pageRouter);
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
+app.use('/team', teamRouter);
+app.use('/message', messageRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
