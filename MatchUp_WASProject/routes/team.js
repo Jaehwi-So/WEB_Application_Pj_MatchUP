@@ -12,20 +12,17 @@ const { Op } = require('sequelize');
 
 //파일업로드 multer 설정
 const upload = multer({
-  storage: multer.diskStorage({ //storage 속성에는 어디에 어떤 이름으로 저장할지를 설정한다.
-    //req 객체에는 요청에 대한 정보, file 객체에는 업로드 파일에 대한 정보가 있음. done은 함수
-    destination(req, file, done) {  
-      //done의 첫번째 인수에는 에러가 있다면 에러를 넣고, 두번째 인수에는 실제 경로를 넣는다.
-      done(null, 'uploads/'); //req와 file의 데이터를 가공하여 done으로 넘긴다.
-    },
-    filename(req, file, done) {
-      const ext = path.extname(file.originalname);
-      //done의 첫번째 인수에는 에러가 있다면 에러를 넣고, 두번째 인수에는 저장할 파일명을 넣는다.
-      done(null, path.basename(file.originalname, ext) + Date.now() + ext); //파일명 + 현재시간 + 확장자로 중복 방지 이름 설정
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },  //limits 속성에는 파일 사이즈 등 업로드에 대한 제한 사항을 설정한다.
-});
+    storage: multer.diskStorage({ 
+      destination(req, file, done) {  
+        done(null, 'uploads/'); 
+      },
+      filename(req, file, done) {
+        const ext = path.extname(file.originalname);
+        done(null, path.basename(file.originalname, ext) + Date.now() + ext); 
+      },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 }, 
+  });
 
 //팀 생성 폼 이동
 router.get('/create', isLogin, (req, res) => {
@@ -45,40 +42,91 @@ router.post('/', isLogin, async (req, res, next) => {
         });
         console.log(team);
         await team.addUser(leader_idx);
-        res.redirect('/team/list');
+        res.redirect('/team/list/all');
     } 
     catch (error) {
         console.error(error);
-        res.redirect('/team/list');
+        res.redirect('/team/list/all');
     }
 });
-
+//팀 리스트 폼으로 이동
+router.get('/list', (req, res) => {
+    res.render('team/team_list', {});
+});
 //팀 리스트
-router.get('/list', async (req, res, next) => {
-    const search = req.query.search ? req.query.search : 'all';
-    const type = req.query.type ? req.query.type : 'all';
-    try{
-        const url = `/team/list?search=${search}&type=${type}`; //요청 쿼리 url
+router.get('/list/:value', async (req, res, next) => {
+    try {
+        let teams, rowTotal;
+        const url = `/team/list/${req.params.value}?type=${req.query.type}`; //요청 쿼리 url
         const curPage = Number(req.query.page) || 1; // 현재 페이지 번호 , 기본값은 1
         const contentSize = 10; // 페이지에서 보여줄 컨텐츠 수.
         const pageSize = 5; // 페이지네이션 개수 설정.
         const skipSize = (curPage - 1) * contentSize; //다음 페이지 갈 때 건너뛸 리스트 개수.
+        console.log(curPage, contentSize, skipSize);
         let pager = "";
-        let teams, rowTotal;
-
-        rowTotal = await Team.count({});
-        teams = await Team.findAll({
-            limit: contentSize,
-            offset: skipSize,
-            order: [['updatedAt', 'DESC']]
-        });
-        pager = Pager.getPage(url, false, curPage, contentSize, pageSize, skipSize, rowTotal, false, 'no');
-        return res.render('team/team_list', {teams : teams, pager : pager });    
-    }
-    catch(error){
-        console.error('error', error);
-        res.render('main');
-    }
+        //팀명으로 검색
+        if(req.query.type == 's_name'){
+            rowTotal = await Team.count({where: {team_name : req.params.value}});
+            teams = await Team.findAll({
+                where: {team_name : req.params.value},
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        } 
+        //지역으로 검색
+        else if(req.query.type == 's_region'){
+            rowTotal = await Team.count({                
+                where: {                 
+                    region: {[Op.like]: "%" + req.params.value + "%"} 
+                },
+            });
+            teams = await Team.findAll({
+                where: {                 
+                    region: {[Op.like]: "%" + req.params.value + "%"} 
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        } 
+        //키워드로 검색
+        else if(req.query.type == 's_keyword'){
+            rowTotal = await Team.count( {              
+                where: {                 
+                    keyword: {[Op.like]: "%" + req.params.value + "%"} 
+                },
+            });
+            teams = await Team.findAll({
+                where: {                 
+                    keyword: {[Op.like]: "%" + req.params.value + "%"} 
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        } 
+        else{
+            rowTotal = await Team.count({});
+            teams = await Team.findAll({
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        }
+        if(teams.length > 0){
+          //url, 쿼리 유무, 현재 페이지, 페이지 컨텐츠 수, 한 화면 페이지네이션 개수, 생략 컨텐츠 수, 총 로우 개수, ajax여부, ajax함수
+          pager = Pager.getPage(url, true, curPage, contentSize, pageSize, skipSize, rowTotal, true, 'search');
+          return res.json({ res: 'success', teams, pager: pager });
+        }
+        else{
+          return res.json({ res: 'no', teams, pager: pager});
+        }
+      } 
+      catch (error) {
+        console.log(error);
+        return res.json({ res: 'error'});
+      }
 });
 
 //팀 상세보기
@@ -232,39 +280,78 @@ router.delete('/user/:id', isLogin, async (req, res, next) => {
 
 //팀 가입
 router.post('/user/:id', isLogin, upload_none.none(), async (req, res, next) => {
-    try{
-        const { teamID, senderID } = req.body;  //팀 아이디, 팀장 아이디
-        const targetID = parseInt(req.params.id);   //가입 대상
-        const team = await Team.findOne({
-            where : {id : teamID},
-        });
-        console.log(teamID, targetID, req.user.id, senderID);
-        await team.addUser(targetID);
-
-        //가입완료 메세지를 보냄
-        const senderUser = await User.findOne({
-            where : {id: senderID},
-            attributes: ['nick'],
-        });
-        const targetUser = await User.findOne({
-            where : {id: targetID},
-            attributes: ['nick'],
-        });
-        const message = await Message.create({  //Insert
-            title : `팀 가입이 승인되었습니다.`,
-            content : `${team.team_name}에 가입이 완료되었습니다.`,
-            type : 'join_approve',
-            sender_id : senderID,
-            sender_nick : senderUser.nick,
-            receiver_id : targetID,
-            receiver_nick : targetUser.nick,
-            additional_info : 'no',
-        });
-        res.json({res: "success"});
+    //가입신청 수락
+    if(req.query.type == 'join'){   
+        try{
+            const { teamID, senderID, messageID } = req.body;  //팀 아이디, 메시지 보낼 아이디(팀장), 메시지 아이디
+            const targetID = parseInt(req.params.id);   //가입 대상
+            const team = await Team.findOne({
+                where : {id : teamID},
+            });
+            console.log(teamID, targetID, req.user.id, senderID);
+            await team.addUser(targetID);
+            const joinMessage = await Message.update({ _id : messageID}, { $set: { additional_info: 'join success'} });
+            //가입완료 메세지를 보냄
+            const senderUser = await User.findOne({
+                where : {id: senderID},
+                attributes: ['nick'],
+            });
+            const targetUser = await User.findOne({
+                where : {id: targetID},
+                attributes: ['nick'],
+            });
+            const message = await Message.create({  //Insert
+                title : `팀 가입이 승인되었습니다.`,
+                content : `${team.team_name}에 가입이 완료되었습니다.`,
+                type : 'join_approve',
+                sender_id : senderID,
+                sender_nick : senderUser.nick,
+                receiver_id : targetID,
+                receiver_nick : targetUser.nick,
+                additional_info : 'no',
+            });
+            res.json({res: "success"});
+        }
+        catch(e){
+        console.error(e);
+        res.json({res: "error"});
+        }
     }
-    catch(e){
-      console.error(e);
-      res.json({res: "error"});
+    //팀 초대 수락
+    else if(req.query.type == 'invite'){   
+        try{
+            const { teamID, receiverID, messageID } = req.body;  //팀 아이디, 메시지 받을 아이디(팀장), 메시지 아이디
+            const targetID = parseInt(req.params.id);   //가입 대상
+            const team = await Team.findOne({
+                where : {id : teamID},
+            });
+            await team.addUser(targetID);
+            const joinMessage = await Message.update({ _id : messageID}, { $set: { additional_info: 'invite success'} });
+            //가입완료 메세지를 보냄
+            const senderUser = await User.findOne({
+                where : {id: targetID},
+                attributes: ['nick'],
+            });
+            const targetUser = await User.findOne({
+                where : {id: receiverID},
+                attributes: ['nick'],
+            });
+            const message = await Message.create({  //Insert
+                title : `팀 초대를 수락하였습니다.`,
+                content : `${senderUser.nick}님이 ${team.team_name}에 가입되었습니다.`,
+                type : 'invite_approve',
+                sender_id : targetID,
+                sender_nick : senderUser.nick,
+                receiver_id : receiverID,
+                receiver_nick : targetUser.nick,
+                additional_info : 'no',
+            });
+            res.json({res: "success"});
+        }
+        catch(e){
+        console.error(e);
+        res.json({res: "error"});
+        }
     }
   });
 

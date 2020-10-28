@@ -80,6 +80,8 @@
             <tr class="list_hover" onclick="message_ck('{{message.id}}');">
                 <td width="30">
                     {% if not message.isRead and message.receiver_id == user.id %}<span class="new_blink">NEW!</span> 
+                    {% elif message.additional_info == 'join success' %} <span style="color:gray;">완료</span>
+                    {% elif message.additional_info == 'invite success' %} <span style="color:gray;">완료</span>
                     {% elif message.sender_id == user.id %}발신
                     {% else %}수신
                     {% endif %}
@@ -89,6 +91,8 @@
                     {% if message.type == 'general' %} 일반
                     {% elif message.type == 'join' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">가입신청</span>
                     {% elif message.type == 'join_approve' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">가입승인</span>
+                    {% elif message.type == 'invite' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">초대</span>
+                    {% elif message.type == 'invite_approve' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">초대수락</span>
                     {% endif %}
                 </td>
                 <td width="150"><b>{{message.title}}</b></td>

@@ -3,9 +3,15 @@
 {% endblock %}
 
 {% block main_content %}
+<script>
+  if('{{myTeam.length}}' == '0'){
+  alert('팀장으로 활동하는 팀이 없어 초대할 수 없습니다.');
+  window.close();
+}
+</script>
 <div id="main_box">
   <div id="info_box">
-  <p class="font_title">팀 가입 신청</p>
+  <p class="font_title">팀 초대</p>
   <p class="font_content">To <b>{{target.nick}}</b>..</p>
   </div>
   <br><hr>
@@ -13,10 +19,18 @@
     <label>제목</label>
     <input id="message_title">
   </div>
-  <textarea id="message_area" rows="15" cols="70">내용 최대 1000자 입력</textarea>
+  <div class="input-group">
+    <label>초대할 팀</label>
+    <select id="invite_team_id"> 
+    {% for team in myTeam %}
+      <option value="{{team.id}}">{{team.team_name}}</option>
+    {% endfor %}
+    </select>
+  </div>
+  <textarea id="message_area" rows="12" cols="70">내용 최대 1000자 입력</textarea>
   <br><br>
   <input id="target_id" type="hidden" value="{{target.id}}">
-  <button class="btn_l" onclick="send();">신청 완료</button>
+  <button class="btn_l" onclick="send();">초대 완료</button>
   <button class="btn_l" onclick="cancel();">취소</button>
 </div>
 {% endblock %}
@@ -26,6 +40,7 @@
   function send(){
     const value = document.getElementById('message_area').value;
     const title = document.getElementById('message_title').value;
+    const teamID = document.getElementById('invite_team_id').value;
     if(value.trim() < 1 || value.trim() > 50){
       alert('1-50자 이내의 제목을 입력해주세요');
       return;
@@ -34,20 +49,21 @@
       alert('1-1000자 이내의 내용을 입력해주세요');
       return;
     }
-    axios.post('/message/{{target.id}}', { title : title, content :  value, targetNick : '{{target.nick}}', type : 'join', teamID : '{{teamID}}'})
+    axios.post('/message/{{target.id}}', { title : title, content :  value, targetNick : '{{target.nick}}', type : 'invite', teamID : teamID})
     .then((res) => {
         if(res.data.res == "success"){
-            alert('가입신청이 완료되었습니다.');
+            alert('팀 초대가 완료되었습니다.');
             window.close();
-        }
-        else if(res.data.res == "exist"){
+         }
+         else if(res.data.res == "exist"){
             alert('이미 팀에 존재하는 멤버입니다.');
             window.close();
-        }
+         }
         else{
-            alert('신청에 실패했습니다.');
+            alert('팀 초대에 실패했습니다.');
             window.close();
         }
+        opener.location.reload();
     });
   }
   function cancel(){

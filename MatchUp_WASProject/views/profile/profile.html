@@ -177,7 +177,7 @@
                 <input id="follow_btn" class ="btn_l" type="button" onclick="follow(this.form);" value="팔로우">
                 <input id="unfollow_btn" class ="btn_l" type="hidden" onclick="unfollow(this.form);" value="언팔로우">
             </td>
-            <td><input class ="btn_l" type="button" onclick="follow();" value="팀 초대"></td>
+            <td><input class ="btn_l" type="button" onclick="invite_team();" value="팀 초대"></td>
             <td><input class ="btn_l" type="button" onclick="message();" value="쪽지"></td>
             </form>
             {% endif %}
@@ -447,7 +447,23 @@ const message = () => {
         alert('로그인 후 이용하세요');
         return;
     }
+    if('{{profile.id}}' == '{{user.id}}'){
+        alert('자기 자신에게 메세지를 보낼 수 없습니다.');
+        return;
+    }
     window.open("/message/form/{{profile.id}}", "쪽지 보내기", "width=550, height=450, left=300, top=50, scrollbars=yes");
+}
+
+const invite_team = () => {
+    if(!'{{user}}'){
+        alert('로그인 후 이용하세요');
+        return;
+    }
+    if('{{profile.id}}' == '{{user.id}}'){
+        alert('자기 자신에게 초대할 수 없습니다.');
+        return;
+    }
+    window.open("/message/inviteform/{{profile.id}}", "팀 초대하기", "width=550, height=450, left=300, top=50, scrollbars=yes");
 }
 </script>
 <!-- 프로필 수정 관련 js -->

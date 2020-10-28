@@ -43,6 +43,7 @@
     <br>
     <form>
     <select name="type" class="info_input">
+        <option value = "s_all">전체 조회</option>
         <option value = "s_name">이름 검색</option>
         <option value = "s_id">ID 검색</option>
         <option value = "s_nick">별명 검색</option>
@@ -65,7 +66,9 @@
 
 {% block script %}
 <script>
-
+$(function(){
+    search('/user/all?type=all');
+});
 const search = (url) => {
     axios.get(url)
         .then((res) => {  

@@ -187,13 +187,23 @@ router.get('/:value', async (req, res, next) => {
         offset: skipSize, 
       });
     }
-    else{
+    //이름으로 검색
+    else if(req.query.type == 's_name'){
       member = await User.findAndCountAll({
         where: {user_name : req.params.value}, 
       });
       rowTotal = member.count;
       member = await User.findAll({ 
         where: {user_name : req.params.value},         
+        limit: contentSize,
+        offset: skipSize, 
+      });
+    }
+    else{
+      member = await User.findAndCountAll({
+      });
+      rowTotal = member.count;
+      member = await User.findAll({     
         limit: contentSize,
         offset: skipSize, 
       });

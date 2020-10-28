@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const { isLogin, isNotLogin } = require('./middlewares');
-const { User } = require('../models');
+const { User, Team } = require('../models');
 const Message = require('../schemas/message');
 const Pager = require('../util/pager');
 const bcrypt = require('bcrypt');
@@ -58,7 +58,6 @@ router.get('/receive/:id', isLogin, async (req, res, next) => {
         const result = await Message.update({ _id : req.params.id}, { $set: { isRead: true} });
         const message = await Message.findOne({_id : req.params.id})
         res.render('message/message_receive_form', {message});
-        
     }
     catch(e){
         console.error(e);
@@ -66,14 +65,31 @@ router.get('/receive/:id', isLogin, async (req, res, next) => {
     }
 });
 
-//메세지 발송(일반, 가입신청, 가입승인)
+//메세지 발송(일반, 가입신청, 가입승인, 팀 초대)
 router.post('/:id', isLogin, async (req, res, next) => {
     const { title, content, targetNick, type } = req.body;
     const target = parseInt(req.params.id);
     let additional_info = 'no'; 
+
     //가입신청인 경우 부가정보
     if(type == 'join'){
         additional_info = req.body.teamID;
+        const curTeam = await Team.findOne({where : {id : req.body.teamID} });
+        const isTeam = await curTeam.getUsers({where : {id : req.user.id} } );
+        //이미 팀에 존재하는 경우
+        if(isTeam.length > 0){
+            return res.json({ res: 'exist' });
+        }
+    }
+    //팀 초대인 경우 부가정보
+    if(type == 'invite'){
+        additional_info = req.body.teamID;
+        const curTeam = await Team.findOne({where : {id : req.body.teamID} });
+        const isTeam = await curTeam.getUsers({where : {id : target} } );
+        //이미 팀에 존재하는 경우
+        if(isTeam.length > 0){
+            return res.json({ res: 'exist' });
+        }
     }
     try {
         const message = await Message.create({  //Insert
@@ -109,6 +125,31 @@ router.get('/joinform/:id', isLogin, async (req, res, next) => {
         })
         if(target){
             res.render('message/message_join_form', {target, teamID});
+        }
+        else{
+            res.render('main');
+        }
+    }
+    catch(e){
+        console.error(e);
+        res.render('main');
+    }
+});
+
+//팀 초대 메시지 작성 양식으로 이동
+router.get('/inviteform/:id', isLogin, async (req, res, next) => {
+    try{
+        const target = await User.findOne({
+            where: {id: req.params.id},
+            attributes: ['id', 'nick']
+        });
+        const myTeam = await Team.findAll({
+            where: {
+                leader_idx: req.user.id
+            },
+        })
+        if(target){
+            res.render('message/message_invite_form', {target, myTeam});
         }
         else{
             res.render('main');

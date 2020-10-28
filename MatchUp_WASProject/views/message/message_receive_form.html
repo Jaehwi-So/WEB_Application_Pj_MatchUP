@@ -26,6 +26,10 @@
     팀 가입 신청
     {% elif message.type == 'join_approve' %}
     팀 가입 승인
+    {% elif message.type == 'invite' %}
+    팀 초대 
+    {% elif message.type == 'invite_approve' %}
+    팀 초대 수락
     {% endif %}
   </p>
   </div>
@@ -43,6 +47,12 @@
       <th>제목</th>
       <td>{{message.title}}</td>
     </tr>
+    {% if message.type == 'invite' and message.additional_info != 'invite success' %}
+    <tr>
+      <th>팀</th>
+      <td><span onclick="go_team('{{message.additional_info}}')" style="cursor:pointer;">상세보기</span></td>
+    </tr>
+    {% endif %}
   </table>
   <textarea id="message_area" rows="15" cols="70" readonly>{{message.content}}</textarea>
   <br><br>
@@ -54,9 +64,17 @@
     <button class="btn_l" onclick="cancel();">돌아가기</button>
     {% endif %}
   {% elif message.type == 'join' %}
-    {% if user.id == message.receiver_id %}
+    {% if user.id == message.receiver_id and message.additional_info != 'join success' %}
     <input type="hidden" value="{{message.additional_info}}" id="team_id">
     <button class="btn_l" onclick="join_accept('{{message.sender_id}}');">가입 승인</button>
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+    {% else %}
+    <button class="btn_l" onclick="cancel();">돌아가기</button>
+    {% endif %}
+  {% elif message.type == 'invite' %}
+    {% if user.id == message.receiver_id and message.additional_info != 'invite success' %}
+    <input type="hidden" value="{{message.additional_info}}" id="team_id_invite">
+    <button class="btn_l" onclick="invite_accept('{{message.sender_id}}');">초대 수락</button>
     <button class="btn_l" onclick="cancel();">돌아가기</button>
     {% else %}
     <button class="btn_l" onclick="cancel();">돌아가기</button>
@@ -83,9 +101,15 @@
     window.close();
   }
 
+  function go_team(id){
+    opener.location.href = "/team/" + id;
+    window.close();
+  }
+
+  //가입 승인
   function join_accept(id){
     const team_id = document.getElementById('team_id').value;
-    axios.post('/team/user/{{message.sender_id}}', { teamID : team_id, senderID : '{{message.receiver_id}}'})
+    axios.post('/team/user/{{message.sender_id}}?type=join', { teamID : team_id, senderID : '{{message.receiver_id}}', messageID : '{{message._id}}'})
     .then((res) => {
         if(res.data.res == "success"){
             alert('가입을 승인하였습니다.');
@@ -95,6 +119,24 @@
             alert('승인에 실패했습니다.');
             window.close();
         }
+        opener.location.reload();
+    });
+  }
+
+  //초대 수락
+  function invite_accept(id){
+    const team_id = document.getElementById('team_id_invite').value;
+    axios.post('/team/user/{{message.receiver_id}}?type=invite', { teamID : team_id, receiverID : '{{message.sender_id}}', messageID : '{{message._id}}'})
+    .then((res) => {
+        if(res.data.res == "success"){
+            alert('팀 초대에 수락했습니다.');
+            window.close();
+        }
+        else{
+            alert('수락에 실패했습니다.');
+            window.close();
+        }
+        opener.location.reload();
     });
   }
 </script>
