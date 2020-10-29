@@ -126,9 +126,12 @@ const search = (url) => {
         });
 }
 const search_ck = (f) => {
-    if(f.content.value.trim() == ''){
+    if(f.content.value.trim() == '' && f.type.value != 's_all'){
         alert("내용을 한 글자 이상 입력하세요");
         return;
+    }
+    if(f.type.value == 's_all'){
+        f.content.value = 'all';
     }
     const url = '/user/' + f.content.value + '?type=' + f.type.value;
     search(url);

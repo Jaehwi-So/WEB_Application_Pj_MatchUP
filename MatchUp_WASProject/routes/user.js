@@ -29,7 +29,7 @@ const upload = multer({
 //회원 가입
 router.post('/', async (req, res, next) => {
   const { user_id, user_pwd, user_name, nick, email, birth, gender } = req.body;
-  console.log(req.body.user_id);
+  console.log('일로왜안와짐;;');
   try {
     let exUser;
     exUser = await User.findOne({ where: { user_id } });
@@ -63,7 +63,7 @@ router.post('/', async (req, res, next) => {
 //회원정보 수정
 router.put('/', isLogin, async (req, res, next) => {
   const { user_id, user_pwd, user_name, nick, email, birth, gender } = req.body;
-  console.log(req.body.user_id);
+  console.log('여기로 와지냐?', req.body.user_id);
   try {
     let exUser;
     exUser = await User.findOne({ 

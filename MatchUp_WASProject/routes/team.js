@@ -1,5 +1,5 @@
 const express = require('express');
-const { User, Team } = require('../models');
+const { User, Team, Offer } = require('../models');
 const bcrypt = require('bcrypt');
 const { isLogin, isNotLogin } = require('./middlewares');
 const { PrecompiledLoader } = require('nunjucks');
@@ -42,11 +42,11 @@ router.post('/', isLogin, async (req, res, next) => {
         });
         console.log(team);
         await team.addUser(leader_idx);
-        res.redirect('/team/list/all');
+        res.redirect('/team/list');
     } 
     catch (error) {
         console.error(error);
-        res.redirect('/team/list/all');
+        res.redirect('/team/list');
     }
 });
 //팀 리스트 폼으로 이동
@@ -355,5 +355,195 @@ router.post('/user/:id', isLogin, upload_none.none(), async (req, res, next) => 
     }
   });
 
+//팀 구인 리스트로 이동
+router.get('/offer/list', (req, res) => {
+    res.render('offer/offer_list', {});
+});
+
+//팀 구인 게시글 작성 폼으로 이동
+router.get('/offer/insertform', isLogin, async (req, res) => {
+    const myTeam = await Team.findAll({
+        where: {
+            leader_idx: req.user.id
+        },
+    })
+    res.render('offer/create_form', {myTeam});
+});
+
+//팀 구인 게시글 작성
+router.post('/offer', async (req, res) => {
+    const { title, type, position, content, offerteam } = req.body;
+    try {
+        const offer = await Offer.create({
+            title,
+            type,
+            position,
+            content,
+            offerteam,
+        });
+        res.redirect('/team/offer/list');
+    } 
+    catch (error) {
+        console.error(error);
+        res.redirect('/team/offer/list');
+    }
+});
+//팀 구인 게시글 수정 폼으로 이동
+router.get('/offer/updateform/:id', isLogin, async (req, res) => {
+    const myTeam = await Team.findAll({
+        where: {
+            leader_idx: req.user.id
+        },
+    })
+    const offer = await Offer.findOne({
+        where: {
+            id : parseInt(req.params.id),
+        },
+        include: {  
+            model: Team,
+        },
+    })
+    res.render('offer/update_form', {myTeam, offer});
+});
+
+//구인게시글 수정
+router.put('/offer/:id', isLogin, async (req, res, next) => {
+    const { title, type, position, content, offerteam } = req.body;
+    try {
+        const offer = await Offer.update({
+            title,
+            type,
+            position,
+            content,
+            offerteam,
+        },{
+            where : {id : parseInt(req.params.id) }
+        });
+        res.json({res: "success"});
+    } 
+    catch (error) {
+        console.error(error);
+        res.json({res: "fail"});
+    }
+});
+
+//구인게시글 삭제
+router.delete('/offer/:id', isLogin, async (req, res, next) => {
+    try {
+        const offer = await Offer.destroy({where : {id : parseInt(req.params.id) }});
+        res.json({res: "success"});
+    } 
+    catch (error) {
+        console.error(error);
+        res.json({res: "fail"});
+    }
+});
+
+//팀 구인 게시글 리스트
+router.get('/offer/list/:value', async (req, res, next) => {
+    try {
+        //s_title, s_region, s_all s_type s_position
+        let offers, rowTotal;
+        const url = `/team/offer/list/${req.params.value}?type=${req.query.type}`; //요청 쿼리 url
+        const curPage = Number(req.query.page) || 1; // 현재 페이지 번호 , 기본값은 1
+        const contentSize = 10; // 페이지에서 보여줄 컨텐츠 수.
+        const pageSize = 5; // 페이지네이션 개수 설정.
+        const skipSize = (curPage - 1) * contentSize; //다음 페이지 갈 때 건너뛸 리스트 개수.
+        console.log(curPage, contentSize, skipSize);
+        let pager = "";
+        //제목으로 검색
+        if(req.query.type == 's_title'){
+            rowTotal = await Offer.count({where: {title : {[Op.like]: "%" + req.params.value + "%"} } });
+            offers = await Offer.findAll({
+                where: {title : {[Op.like]: "%" + req.params.value + "%"} },
+                include: {  
+                    model: Team,
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        } 
+        //지역으로 검색
+        else if(req.query.type == 's_region'){
+            rowTotal = await Offer.count({
+                include: {  
+                    model: Team,
+                    where: { region: {[Op.like]: "%" + req.params.value + "%"} }
+                }
+            });
+            offers = await Offer.findAll({
+                include: {  
+                    model: Team,
+                    where: { region: {[Op.like]: "%" + req.params.value + "%"} }
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        } 
+         //포지션으로 검색
+        else if(req.query.type == 's_position'){
+            rowTotal = await Offer.count({where: {position : {[Op.like]: "%" + req.params.value + "%"} }});
+            offers = await Offer.findAll({
+                where: {position : {[Op.like]: "%" + req.params.value + "%"} },
+                include: {  
+                    model: Team,
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        }       
+        //유형으로 검색
+        else if(req.query.type == 's_type'){
+            rowTotal = await Offer.count({where: {type : {[Op.like]: "%" + req.params.value + "%"} }});
+            offers = await Offer.findAll({
+                where: {type : {[Op.like]: "%" + req.params.value + "%"} },
+                include: {  
+                    model: Team,
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        }      
+        else{
+            rowTotal = await Offer.count({});
+            offers = await Offer.findAll({
+                include: {  
+                    model: Team,
+                },
+                limit: contentSize,
+                offset: skipSize,
+                order: [['updatedAt', 'DESC']]
+            });
+        }
+        if(offers.length > 0){
+          //url, 쿼리 유무, 현재 페이지, 페이지 컨텐츠 수, 한 화면 페이지네이션 개수, 생략 컨텐츠 수, 총 로우 개수, ajax여부, ajax함수
+          pager = Pager.getPage(url, true, curPage, contentSize, pageSize, skipSize, rowTotal, true, 'search');
+          console.log(offers);
+          return res.json({ res: 'success', offers, pager});
+        }
+        else{
+          return res.json({ res: 'no', offers, pager});
+        }
+      } 
+      catch (error) {
+        console.log(error);
+        return res.json({ res: 'error'});
+      }
+});
+
+router.get('/offer/:id', async (req, res) => {
+    const offer = await Offer.findOne({
+        where: {id : parseInt(req.params.id)},
+        include: {  
+            model: Team,
+        },
+    });
+
+    res.render('offer/offer_detail', {offer});
+});
 module.exports = router;
 

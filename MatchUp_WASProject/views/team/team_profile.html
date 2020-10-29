@@ -120,7 +120,7 @@
     <br><hr>
     <table class="profile_tb">
         <tr>
-            <td rowspan = "5" width = "160" class="photo">
+            <td rowspan = "6" width = "160" class="photo">
                 <img id="prof_photo" src='{{team.photo}}' width="150" height="150"/>
             </td>
             <th class="profile_label_odd" width = "80">팀명</th>
@@ -139,8 +139,12 @@
             <td>팀원 {{team.Users.length}}명</td>
         </tr>
         <tr>
-            <th class="profile_label_odd">상태</th>
+            <th class="profile_label_odd">상태 메세지</th>
             <td>{{team.state}}</td>
+        </tr>
+        <tr>
+            <th class="profile_label_even">키워드</th>
+            <td>{{team.keyword}}</td>
         </tr>
     </table>
 

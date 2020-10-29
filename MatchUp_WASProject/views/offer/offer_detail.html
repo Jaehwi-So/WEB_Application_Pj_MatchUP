@@ -1,0 +1,110 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+#info_box{
+    margin: auto;
+    margin-bottom : 10px;
+    padding : 10px;
+    text-align : center;
+    font-size : 15px;
+}
+#content_box{
+    margin : auto;
+    margin-top : 15px;
+    width : 600px;
+    font-size : 15px;
+    font-family : 'Do Hyeon';
+    text-align : center;
+}
+#content_box table{
+    margin : auto;
+    border-collapse : collapse;
+}
+#content_box table tr th{
+    padding : 4px 5px;
+    text-align : left;
+    font-size : 19px;
+    color : green;
+    border-bottom : 1.5px dotted black;
+}
+#content_box table tr td{
+    padding : 4px 5px;
+    text-align : left;
+    font-size : 15px;
+    border-bottom : 1.5px dotted black;
+}
+#message_area{
+    margin-top : 15px;
+    font-size : 12px;
+    padding : 5px;
+    text-overflow : ellipsis;
+    text-align : left;
+    font-family : Arial, Helvetica, sans-serif;
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<div id="info_box">
+    <p class="font_title">{{offer.title}}</p>
+  </div><hr>
+  <div id="content_box">
+    <table>
+        <tr>
+            <th width="120">&bull; 팀명</td>
+            <td width="400">{{offer.Team.team_name}} &nbsp;<a href='/team/{{offer.Team.id}}'>바로가기</a></td>
+        </tr>
+        <tr>
+            <th>&bull; 팀 활동 지역</td>
+            <td>{{offer.Team.region}}</td>
+        </tr>
+        <tr>
+            <th>&bull; 구인 유형</td>
+            <td>{{offer.type}}</td>
+        </tr>
+        <tr>
+            <th>&bull; 구인 포지션</td>
+            <td>{{offer.position}}</td>
+        </tr>
+        <tr>
+            <th>&bull; 등록일</td>
+            <td>{{offer.createdAt}}</td>
+        </tr>
+    </table>
+    <textarea id="message_area" rows="25" cols="70" readonly>{{offer.content}}</textarea>
+    <br><br><hr><br>
+    {% if user.id == offer.Team.leader_idx %}
+    <input type="button" value="수정" class="btn_l" onclick="update();"> 
+    <input type="button" value="삭제" class="btn_l" onclick="del();">
+    {% endif %}
+  </div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+const update = () => {
+    location.href = "/team/offer/updateform/{{offer.id}}" 
+}
+const del = () => {
+    const query = confirm('정말로 삭제하시겠습니까?');
+    if(query){
+        console.log('오냐');
+        axios.delete('/team/offer/{{offer.id}}')
+        .then((res) => {
+            const result = res.data.res;
+            if (result == 'success') {
+                alert('삭제가 완료되었습니다.');
+                location.href=`/team/offer/list`;
+                return;
+            }
+            alert('삭제 중 문제가 발생했습니다.');
+            location.href=`/team/offer/list`;
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+    }
+}
+</script>
+{% endblock %}

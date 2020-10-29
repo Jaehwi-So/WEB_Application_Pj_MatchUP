@@ -6,7 +6,7 @@ module.exports = class Team extends Sequelize.Model {
       //id INT NOT NULL AUTO_INCREMENT,
       //name VARCHAR(30) NOT NULL,
       team_name: {
-        type: Sequelize.STRING(30),
+        type: Sequelize.STRING(200),
         allowNull: false,
       },
       //leader_idx INT NOT NULL
@@ -61,7 +61,9 @@ module.exports = class Team extends Sequelize.Model {
   static associate(db) {
     //팀에 가입된 사람들 목록
     db.Team.belongsToMany(db.User, { through: 'Belong' });
-
+    
+    //동료 찾기 게시글
+    db.Team.hasMany(db.Offer, { foreignKey: 'offerteam', sourceKey: 'id' });
   }
 };
 

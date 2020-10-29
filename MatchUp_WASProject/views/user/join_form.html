@@ -65,7 +65,7 @@
       <label class="ck_lb">&nbsp;여성</label><input type="radio" name="gender" value="여성">
     </div>
     <div style="text-align:center;">
-    <button class="btn_l" onclick="insert(this.form);">변경완료</button>
+    <input type="button" class="btn_l" onclick="insert(this.form);" value="가입완료">
     </div>
   </form>
 </div>
@@ -151,11 +151,11 @@
             }
             if (result == 'success') {
               alert('회원가입이 완료되었습니다.');
-              location.href="/";
+              location.href="/main";
               return;
             }
             alert('회원가입 중 문제가 발생했습니다.');
-            location.href="/";
+            location.href="/main";
           })
           .catch((err) => {
             console.error(err);
