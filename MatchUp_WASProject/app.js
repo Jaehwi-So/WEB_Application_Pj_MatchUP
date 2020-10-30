@@ -12,7 +12,6 @@ const pageRouter = require('./routes/page');
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const teamRouter = require('./routes/team');
-const myTeamRouter = require('./routes/myteam');
 const messageRouter = require('./routes/message');
 const { sequelize } = require('./models');
 
@@ -70,7 +69,6 @@ app.use('/', pageRouter);
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/team', teamRouter);
-app.use('/myteam', myTeamRouter);
 app.use('/message', messageRouter);
 
 app.use((req, res, next) => {

@@ -1,41 +1,22 @@
 const express = require('express');
-const { User } = require('../models');
-const Message = require('../schemas/message');
 const router = express.Router();
 const { isLogin, isNotLogin } = require('./middlewares');
+const controller = require('../controller/page')
 
-router.use(async (req, res, next) => {
-  res.locals.user = req.user;
-  res.locals.user_followerNum = req.user ? req.user.Followers.length : 0;
-  res.locals.user_followingNum = req.user ? req.user.Followings.length : 0;
-  if(req.user){
-    try{
-      const issue_num = await Message.count({ receiver_id : req.user.id, isRead : false });
-      res.locals.issue_num = issue_num || 0;
-    }
-    catch(e){
-      console.error(e);
-      next();
-    }
-  }
-  next();
-});
+//모든 페이지에서 항상 보여줄 데이터 바인딩
+router.use(controller.all_route_bind);
 
-router.get('/', (req, res) => {
-  res.render('main', {});
-});
+//메인화면
+router.get('/', controller.main_page);
 
-router.get('/join', (req, res) => {
-  res.render('user/join_form', {});
-});
+//가입 페이지
+router.get('/join', controller.join_page);
 
-router.get('/update', isLogin, (req, res) => {
-  res.render('user/update_form', {});
-});
+//정보 수정 페이지
+router.get('/update', isLogin, controller.update_page);
 
-router.get('/search', (req, res) => {
-  res.render('user/search', {});
-});
+//사람 검색 페이지
+router.get('/search', controller.user_search_page);
 
 
 module.exports = router;

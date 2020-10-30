@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+    #info_box{
+        margin : auto;
+        padding : 10px;
+        text-align : center;
+        font-size : 15px;
+    }
+    #list_box{
+        margin : auto;
+        width : 600px;
+        text-align : center;
+    }
+    #list_box table{
+        margin : auto;
+        border-collapse : collapse;
+    }
+    #list_box table tr th{
+        background-color: rgb(0, 161, 0);
+        border-top : 1px solid black;
+        border-bottom : 1px solid black;
+        padding : 3px;
+    }
+    #list_box table tr td{
+        background-color: white;
+        border-bottom : 1px solid black;
+        padding : 3px;
+        text-overflow:ellipsis;
+    }
+    .info_input{
+        margin-top : 5px;
+        padding : 2px;
+        font-size : 15px;
+    }
+
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="info_box">
+    <p class="font_title">나의 팀</p>
+    <p class="font_content">현재 소속된 팀들을 조회합니다.</p><br>
+    <button class="btn_l" onclick="create_team();">새로운 팀 생성</button><br>
+    <br><hr><br>
+    <div id="list_box">
+        <table id="search_list">
+            <tr>
+                <th width="90">팀 사진</th>
+                <th width="90">비고</th>
+                <th width="150">팀명</th>
+                <th width="100">상세보기</th>
+            </tr>
+            {% for team in teams %}
+            <tr>
+                {% if team.photo %}
+                <td><img src='{{team.photo}}' width="90" height="90"></td>
+                {% else %}
+                <td><img src='/img/profile_non.png' width="90" height="90"></td>
+                {% endif %}
+                <td>
+                    {% if team.leader_idx == user.id %}
+                    <b>팀장</b>
+                    {% else %}
+                    팀원
+                    {% endif %}
+                </td>
+                <td>{{team.team_name}}</td>
+                <td><input type="button" class="btn_l" value="바로가기" onclick="location.href='/team/{{team.id}}'"></td>
+            </tr>
+            {% endfor %}     
+        </table>
+    </div>
+    <br>
+    <div id="pager">
+        {{pager|safe}}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    const create_team = () => {
+    if(!'{{user}}'){
+        alert('로그인 후 이용하세요');
+        return;
+    }
+    location.href = '/team/create';
+    }
+</script>
+{% endblock %}
