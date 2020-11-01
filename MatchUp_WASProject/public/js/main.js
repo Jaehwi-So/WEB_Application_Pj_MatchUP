@@ -14,3 +14,26 @@ $.fn.serializeObject = function() {
     });
     return o;
 };
+
+//날짜 포매터
+function setDigitFormat(n, digits) {
+    let zero = '';
+    n = n.toString();
+    if (n.length < digits) {
+      for (i = 0; i < digits - n.length; i++)
+        zero += '0';
+    }
+    return zero + n;
+}
+function timeFormat(time) {
+    let date = new Date(time);
+    const str =
+      setDigitFormat(date.getFullYear(), 4) + '-' +
+      setDigitFormat(date.getMonth() + 1, 2) + '-' +
+      setDigitFormat(date.getDate(), 2) + ' ' +
+      setDigitFormat(date.getHours(), 2) + ':' +
+      setDigitFormat(date.getMinutes(), 2) + ':' +
+      setDigitFormat(date.getSeconds(), 2);
+  
+    return str;
+}

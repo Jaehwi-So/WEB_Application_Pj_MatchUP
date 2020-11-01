@@ -1,0 +1,121 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+#info_box{
+    margin: auto;
+    margin-bottom : 10px;
+    padding : 10px;
+    text-align : center;
+    font-size : 15px;
+  }
+#form_box{
+    margin : auto;
+    margin-top : 15px;
+    width : 400px;
+    font-size : 20px;
+    font-family : 'Do Hyeon'
+}
+.input-group { margin-bottom: 15px; }
+.input-group label { width: 25%; display: inline-block; font-size : 16px;}
+.input-group input { width: 70%; font-size : 12px;}
+.input-group select { width: 70%; font-size : 12px;}
+.input_ck_group { margin-bottom: 15px; }
+.input_ck_group label { width: 30%; display: inline-block; }
+.input_ck_group .ck_lb { width: 15%; display: inline-block; }
+.input_ck_group input { width:15px; height:15px; margin-right:15px;}
+#message_area{
+    font-size : 12px;
+    padding : 5px;
+    text-overflow : ellipsis;
+    text-align : left;
+    font-family : Arial, Helvetica, sans-serif;
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<script>
+    if('{{myTeam.length}}' == '0'){
+      alert('팀장으로 활동하는 팀이 없어 대전 게시글을 올릴 수 없습니다.');
+      window.close();
+    }
+</script>
+<div id="info_box">
+    <p class="font_title">대전 상대 찾기</p>
+    <p class="font_content">팀과 겨룰 대전 상대를 찾는 게시글을 올립니다.</p>
+  </div><hr>
+  <div id="form_box">
+    <form id="create_form">  
+        <div class="input-group">
+            <label>팀 선택</label>
+            <select name="rootteam"> 
+            {% for team in myTeam %}
+              <option value="{{team.id}}">{{team.team_name}}</option>
+            {% endfor %}
+            </select>
+          </div>
+        <div class="input-group">
+            <label>게시글 제목</label>
+            <input name="title" placeholder="1-30자리">
+        </div>
+        <div class="input-group">
+            <label>대전 유형</label>
+            <input name="type" placeholder="ex)11 vs 11 축구">
+        </div>
+        <div class="input-group">
+            <label>시간</label>
+            <input name="time" placeholder="ex)10월 30일, 협의 후 결정">
+        </div>
+        <div class="input-group">
+            <label>장소</label>
+            <input name="region" placeholder="ex)서울시, 협의 후 결정">
+        </div>
+        <textarea name="content" id="message_area" rows="15" cols="70">글 내용 입력(최대 1000자)</textarea>
+        <div style="text-align:center;">
+        <input type="button" class="btn_l" onclick="insert(this.form);" value="글 게시">
+        </div>
+    </form>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    function insert( f ) {
+        var title = f.title.value.trim();
+        var type = f.type.value.trim();
+        var time = f.time.value.trim();
+        var region = f.region.value.trim();
+        var content = f.content.value.trim();
+        var rootteam = f.rootteam.value.trim();
+        if( title.length < 1 || title.length > 30){
+            alert("제목은 1-30자리 이내로 입력해주세요.");
+            return;
+        }
+        if( type.length < 1 || type.length > 30){
+            alert("1-30자리 이내의 대전 유형을 입력해주세요.");
+            return;
+        }
+        if( time.length < 1 || time.length > 50){
+            alert("1-50자리 이내의 대전 시간을 입력해주세요.");
+            return;
+        }
+        if( region.length < 1 || region.length > 50){
+            alert("1-50자리 이내의 대전 장소를 입력해주세요.");
+            return;
+        }
+        if( content.length < 1 || content.length > 1000 ){
+            alert("1~1000자리 이내의 내용을 입력해주세요");
+            return;
+        }
+        if( rootteam.length < 1 ){
+            alert("대전 매칭 글을 올릴 당신의 팀을 선택해주세요.");
+            return;
+        }
+        f.action = "/match";
+        f.method = "POST";
+        alert('글을 게시하였습니다.');
+        f.submit();
+    }
+</script>
+{% endblock %}
