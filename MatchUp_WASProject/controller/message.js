@@ -1,9 +1,8 @@
 const express = require('express');
-const { User, Team, Match } = require('../models');
+const { User, Team } = require('../models');
 const Message = require('../schemas/message');
 const Pager = require('../util/pager');
 const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
 
 //메세지 작성 폼 이동
 exports.message_form = async (req, res, next) => {
@@ -88,19 +87,6 @@ exports.send_message = async (req, res, next) => {
             return res.json({ res: 'exist' });
         }
     }
-    //대전 신청인 경우 부가정보
-    if(type == 'apply'){
-        additional_info = "" + req.body.match_id + ',' + req.body.opteamID
-        const match = await Match.findOne({where : {id : req.body.match_id} });
-        //매치가 존재하지 않는 경우
-        if(!match){
-            return res.json({ res: 'exist' });
-        }
-        //매치가 이미 성사된 경우
-        if(match.state == '매칭 완료'){
-            return res.json({ res: 'alldone' });
-        }
-    }
     try {
         const message = await Message.create({  //Insert
             title,
@@ -161,40 +147,6 @@ exports.team_invite_form = async (req, res, next) => {
         })
         if(target){
             res.render('message/message_invite_form', {target, myTeam});
-        }
-        else{
-            res.render('main');
-        }
-    }
-    catch(e){
-        console.error(e);
-        res.render('main');
-    }
-};
-
-//대전 신청 폼 이동
-exports.match_apply_form = async (req, res, next) => {
-    try{
-        const matchID = req.params.id;  //매치 게시글의 id
-        const match = await Match.findOne({   //매치와 개설 팀
-            where : {id : matchID},
-            include: [{  
-                model: Team,
-                as: 'Rootteam',
-            }]
-        })
-        const leader_idx = match.Rootteam.leader_idx;
-        const target = await User.findOne({ //상대 팀장
-            where: {id: leader_idx},
-            attributes: ['id', 'nick']
-        });
-        const myTeam = await Team.findAll({ //나의 팀 목록
-            where: {
-                leader_idx: req.user.id
-            },
-        })
-        if(target){
-            res.render('message/message_apply_form', {match, target, myTeam});
         }
         else{
             res.render('main');

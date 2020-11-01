@@ -84,14 +84,14 @@
         background-color: rgb(0, 161, 0);
         border-top : 1px solid black;
         border-bottom : 1px solid black;
-        padding : 6px;
+        padding : 3px;
     }
     .list_box table tr td{
         background-color: white;
         border-bottom : 1px solid black;
-        font-size : 9px;
+        font-size : 11px;
         text-align : center;
-        padding : 6px 1px;
+        padding : 3px;
         text-overflow:ellipsis;
     }
     #content_content textarea{
@@ -183,8 +183,8 @@
     <p class="font_title">멤버 목록</p>
     <table>
         <tr>
-            <th width="110">닉네임</th>
             <th width="100">이름</th>
+            <th width="110">닉네임</th>
             <th width="90">주 포지션</th>
             <th width="90">부 포지션</th>
             <th width="80">레벨</th>
@@ -193,8 +193,8 @@
         </tr>
         {% for member in team.Users %}
         <tr>
-            <td><b style="font-size:11px;">{{member.nick}}</b></td>
-            <td><b style="font-size:11px;">{{member.user_name}}</b></td>     
+            <td>{{member.user_name}}</td>
+            <td>{{member.nick}}</td>
             <td>{{member.main_position}}</td>
             <td>{{member.sub_position}}</td>
             <td>{{member.user_level}}</td>
@@ -206,36 +206,6 @@
                 {% endif %}
             </td>
             <td><button class="btn_m" onclick='location.href= `/user/profile/{{member.id}}`'>조회</button></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-<br><hr><br>
-<div class="list_box">
-    <p class="font_title">대전 목록</p>
-    <table>
-        <tr>
-            <th width="60">상태</th>
-            <th width="130">대전 이름</th>
-            <th width="100">시간</th>
-            <th width="100">장소</th>
-            <th width="100">홈 팀</th>
-            <th width="100">어웨이 팀</th>
-        </tr>
-        {% for match in matches %}
-        <tr style="cursor:pointer;" onclick="location.href='/match/{{match.id}}'">
-            <td style="color:blue;">
-                {% if match.state == '대전 찾는 중' %}
-                <b style="color:blue">{{match.state}}</b>
-                {% else %}
-                <b style="color:red">{{match.state}}</b>
-                {% endif %}
-            </td>
-            <td><b style="font-size:11px;">{{match.title}}</b></td>
-            <td>{{match.time}}</td>
-            <td>{{match.region}}</td>
-            <td>{{match.Rootteam.team_name}}</td>
-            <td>{{match.Opteam.team_name}}</td>
         </tr>
         {% endfor %}
     </table>

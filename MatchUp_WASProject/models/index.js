@@ -4,7 +4,6 @@ const config = require('../config/config')[env];
 const User = require('./user');
 const Team = require('./team');
 const Offer = require('./offer');
-const Match = require('./match');
 
 const db = {};
 const sequelize = new Sequelize(
@@ -16,20 +15,17 @@ db.sequelize = sequelize;
 db.User = User;
 db.Team = Team;
 db.Offer = Offer;
-db.Match = Match;
 
 //모델 초기화
 User.init(sequelize);
 Offer.init(sequelize);
 Team.init(sequelize);
-Match.init(sequelize);
 
 
 //모델 관계설정
 User.associate(db);
 Offer.associate(db);
 Team.associate(db);
-Match.associate(db);
 
 
 module.exports = db;

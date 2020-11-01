@@ -13,7 +13,6 @@ const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const teamRouter = require('./routes/team');
 const messageRouter = require('./routes/message');
-const matchRouter = require('./routes/match');
 const { sequelize } = require('./models');
 
 const mongo_connect = require('./schemas');   
@@ -71,7 +70,6 @@ app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/team', teamRouter);
 app.use('/message', messageRouter);
-app.use('/match', matchRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);

@@ -4,19 +4,7 @@
   .info_table{
     margin: 10px 30px;
     text-align:left;
-    border-collapse : collapse;
-  }
-  .info_table th{
-    font-size:17px;
-    padding: 3px;
-    font-family: 'Do Hyeon';
-    font-weight: normal;
-    border-bottom : 1px dotted black;
-  }
-  .info_table td{
-    font-size:13px;
-    padding: 3px;
-    border-bottom : 1px dotted black;
+    font-size:15px;
   }
 </style>
 {% endblock %}
@@ -42,24 +30,14 @@
     팀 초대 
     {% elif message.type == 'invite_approve' %}
     팀 초대 수락
-    {% elif message.type == 'apply' %}
-    대전 신청
-    {% elif message.type == 'apply_approve' %}
-    대전 신청 수락
-    {% elif message.type == 'match_success' %}
-    새로운 대전
     {% endif %}
   </p>
   </div>
   <br><hr>
   <table class="info_table">
     <tr>
-      <th width="110">From</th>
-      {% if message.type != 'match_success' %}
-      <td width="340"><b style="cursor:pointer;" onclick="go_profile('{{message.sender_id}}');">{{message.sender_nick}}</b></a></td>
-      {% else %}
-      <td width="340">시스템</td>
-      {% endif %}
+      <th width="60">From</th>
+      <td><b style="cursor:pointer;" onclick="go_profile('{{message.sender_id}}');">{{message.sender_nick}}</b></a></td>
     </tr>
     <tr>
       <th>To</th>
@@ -69,29 +47,10 @@
       <th>제목</th>
       <td>{{message.title}}</td>
     </tr>
-    {% if message.type == 'invite' and message.additional_info != 'invite success' %} <!-- 팀 초대 -->
+    {% if message.type == 'invite' and message.additional_info != 'invite success' %}
     <tr>
       <th>팀</th>
       <td><span onclick="go_team('{{message.additional_info}}')" style="cursor:pointer;">상세보기</span></td>
-    </tr>
-    {% elif message.type == 'join' and message.additional_info != 'join success' %} <!-- 팀 가입신청 -->
-    <tr>
-      <th>가입 요구 팀</th>
-      <td><span onclick="go_team('{{message.additional_info}}')" style="cursor:pointer;">상세보기</span></td>
-    </tr>
-    {% elif message.type == 'apply' and message.additional_info != 'apply success' %} <!-- 대전 신청 -->
-    <tr>
-      <th>신청 팀</th>
-      <td><span onclick="go_team('{{message.additional_info.substring(message.additional_info.indexOf(',') + 1, message.additional_info.length) }}')" style="cursor:pointer;">상세보기</span></td>
-    </tr>
-    <tr>
-      <th>대전</th>
-      <td><span onclick="go_match('{{message.additional_info.substring(0, message.additional_info.indexOf(',')) }}')" style="cursor:pointer;">상세보기</span></td>
-    </tr>
-    {% elif message.type == 'match_success' %}
-    <tr>
-      <th>대전</th>
-      <td><span onclick="go_match('{{message.additional_info}}')" style="cursor:pointer;">상세보기</span></td>
     </tr>
     {% endif %}
   </table>
@@ -120,15 +79,6 @@
     {% else %}
     <button class="btn_l" onclick="cancel();">돌아가기</button>
     {% endif %}
-  {% elif message.type == 'apply' %}
-    {% if user.id == message.receiver_id and message.additional_info != 'apply success' %}
-    <input type="hidden" value="{{ message.additional_info.substring(0, message.additional_info.indexOf(',')) }}" id="match_id_apply">
-    <input type="hidden" value="{{ message.additional_info.substring(message.additional_info.indexOf(',') + 1, message.additional_info.length) }}" id="team_id_apply">
-    <button class="btn_l" onclick="apply_accept('{{message.sender_id}}');">대전 수락</button>
-    <button class="btn_l" onclick="cancel();">돌아가기</button>
-    {% else %}
-    <button class="btn_l" onclick="cancel();">돌아가기</button>
-  {% endif %}
   {% else %}
     <button class="btn_l" onclick="cancel();">돌아가기</button>
   {% endif %}
@@ -156,11 +106,6 @@
     window.close();
   }
 
-  function go_match(id){
-    opener.location.href = "/match/" + id;
-    window.close();
-  }
-
   //가입 승인
   function join_accept(id){
     const team_id = document.getElementById('team_id').value;
@@ -170,12 +115,8 @@
             alert('가입을 승인하였습니다.');
             window.close();
          }
-        else if(res.data.res == "expire"){
-          alert('더이상 존재하지 않는 팀입니다.');
-          window.close();
-        }
         else{
-            alert('가입 승인에 실패했습니다.');
+            alert('승인에 실패했습니다.');
             window.close();
         }
         opener.location.reload();
@@ -190,36 +131,6 @@
         if(res.data.res == "success"){
             alert('팀 초대에 수락했습니다.');
             window.close();
-        }
-        else if(res.data.res == "expire"){
-          alert('더이상 존재하지 않는 팀입니다.');
-          window.close();
-        }
-        else{
-            alert('수락에 실패했습니다.');
-            window.close();
-        }
-        opener.location.reload();
-    });
-  }
-
-    //대전 수락 
-    function apply_accept(id){
-    const team_id = document.getElementById('team_id_apply').value;
-    const match_id = document.getElementById('match_id_apply').value;
-    axios.post('/match/connect/{{message.receiver_id}}?type=apply', { teamID : team_id, matchID : match_id, receiverID : '{{message.sender_id}}', messageID : '{{message._id}}'})
-    .then((res) => {
-        if(res.data.res == "success"){
-            alert('대전 신청에 수락했습니다.');
-            window.close();
-        }
-        else if(res.data.res == "expire"){
-          alert('더이상 존재하지 않는 매치입니다.');
-          window.close();
-        }
-        else if(res.data.res == "alldone"){
-          alert('이미 매칭이 성사된 대전입니다.');
-          window.close();
         }
         else{
             alert('수락에 실패했습니다.');

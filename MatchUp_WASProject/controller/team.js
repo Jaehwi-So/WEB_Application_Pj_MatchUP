@@ -1,5 +1,5 @@
 const express = require('express');
-const { User, Team, Offer, Match } = require('../models');
+const { User, Team, Offer } = require('../models');
 const Message = require('../schemas/message');
 const bcrypt = require('bcrypt');
 const Pager = require('../util/pager');
@@ -122,17 +122,6 @@ exports.get_team_detail = async (req, res) => {
                 as: 'Users'
             }]
         });
-        const matches = await Match.findAll({
-            include: [{
-                model: Team,
-                as: 'Rootteam',
-            },{
-                model: Team,
-                as: 'Opteam',
-            }],
-            where: { [Op.or]: [{rootteam: team.id}, {opteam: team.id}] }
-        });
-
         let isMember = false;
         if(req.user){
             const auth = await team.getUsers({where : {id : req.user.id} } );
@@ -140,7 +129,7 @@ exports.get_team_detail = async (req, res) => {
                 isMember = true;
             }
         }
-        res.render('team/team_profile', {team, isMember, matches});
+        res.render('team/team_profile', {team, isMember});
     }
     catch(e){
         console.error(e);
@@ -281,9 +270,6 @@ exports.join_member = async (req, res, next) => {
             const team = await Team.findOne({
                 where : {id : teamID},
             });
-            if(!team){
-                return res.json({res: "expire"});
-            }
             console.log(teamID, targetID, req.user.id, senderID);
             await team.addUser(targetID);
             const joinMessage = await Message.update({ _id : messageID}, { $set: { additional_info: 'join success'} });
@@ -306,11 +292,11 @@ exports.join_member = async (req, res, next) => {
                 receiver_nick : targetUser.nick,
                 additional_info : 'no',
             });
-            return res.json({res: "success"});
+            res.json({res: "success"});
         }
         catch(e){
         console.error(e);
-        return res.json({res: "error"});
+        res.json({res: "error"});
         }
     }
     //팀 초대 수락
@@ -321,17 +307,13 @@ exports.join_member = async (req, res, next) => {
             const team = await Team.findOne({
                 where : {id : teamID},
             });
-            if(!team){
-                return res.json({res: "expire"});
-            }
-            await team.addUser(targetID); 
-            await Message.update({ _id : messageID}, { $set: { additional_info: 'invite success'} });
+            await team.addUser(targetID);
+            const joinMessage = await Message.update({ _id : messageID}, { $set: { additional_info: 'invite success'} });
             //가입완료 메세지를 보냄
             const senderUser = await User.findOne({
                 where : {id: targetID},
                 attributes: ['nick'],
             });
-            //팀장
             const targetUser = await User.findOne({
                 where : {id: receiverID},
                 attributes: ['nick'],
@@ -346,11 +328,11 @@ exports.join_member = async (req, res, next) => {
                 receiver_nick : targetUser.nick,
                 additional_info : 'no',
             });
-            return res.json({res: "success"});
+            res.json({res: "success"});
         }
         catch(e){
         console.error(e);
-        return res.json({res: "error"});
+        res.json({res: "error"});
         }
     }
 };
