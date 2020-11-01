@@ -4,7 +4,13 @@
     "password": "1111",
     "database": "matchup",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "dialectOptions": {
+      "charset": "utf8mb4", 
+      "dateStrings" : true, 
+      "typeCast" : true 
+    },
+    "timezone": "+09:00"
   },
   "test": {
     "username": "root",

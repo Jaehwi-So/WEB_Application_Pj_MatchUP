@@ -26,4 +26,7 @@ router.get('/joinform/:id', isLogin, controller.team_join_form);
 //팀 초대 메시지 작성 양식으로 이동
 router.get('/inviteform/:id', isLogin, controller.team_invite_form);
 
+//경기 신청 메시지 작성 양식으로 이동
+router.get('/applyform/:id', isLogin, controller.match_apply_form);
+
 module.exports = router; 

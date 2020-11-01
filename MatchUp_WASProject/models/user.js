@@ -87,8 +87,6 @@ module.exports = class User extends Sequelize.Model {
   }
 
   static associate(db) {
-    //db.User.hasMany(db.Post);
-
     //N:M 관계 설정
     //회원을 팔로우하는 사람들 컬럼
     db.User.belongsToMany(db.User, {
@@ -104,6 +102,7 @@ module.exports = class User extends Sequelize.Model {
     });
     //가입된 팀의 목록
     db.User.belongsToMany(db.Team, { through: 'Belong' });
+
   }
 };
 

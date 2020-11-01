@@ -59,23 +59,22 @@
 {% block main_content %}
 <div id="info_box">
 
-    <p class="font_title">팀원 영입 게시판</p>
-    <p class="font_content">새로운 팀원을 구하는 게시판입니다.</p>
+    <p class="font_title">대전 찾기</p>
+    <p class="font_content">함께 대전할 상대팀을 찾아보세요.</p>
     <br>
     <form>
     <select name="type" class="info_input">
         <option value = "s_all">전체 조회</option>
         <option value = "s_title">제목 검색</option>
-        <option value = "s_position">포지션 검색</option>
-        <option value = "s_type">유형 검색</option>
-        <option value = "s_region">지역 검색</option>
+        <option value = "s_region">장소 검색</option>
+        <option value = "s_time">시간 검색</option>
     </select>
     <input type="text" class="info_input" name="content">
     <input class="btn_l" type="button" value="검색" onclick="search_ck(this.form)">
     </form>
     <br><hr>
     <div id="list_box">
-        <input class="btn_l" type="button" value="새로운 게시글 올리기" onclick="insert_board()" style="margin: 20px auto;">
+        <input class="btn_l" type="button" value="대전 공고 올리기" onclick="insert_board()" style="margin: 20px auto;">
         <table id="search_list">
 
         </table>
@@ -88,7 +87,7 @@
 {% block script %}
 <script>
 $(function(){
-    search('/team/offer/list/all?type=all');
+    search('/match/list/all?type=all');
 });
 const search = (url) => {
     axios.get(url)
@@ -96,34 +95,34 @@ const search = (url) => {
             console.log(res.data.res);
             const list = document.getElementById('search_list');
             const pager = document.getElementById('pager');
-            list.innerHTML = '<tr><th width="120">팀명</th><th width="150">제목</th><th width="100">구인 유형</th><th width="100">구인 포지션</th><th width="120">활동 지역</th><th width=120">등록일</th></tr>';
+            list.innerHTML = '<tr><th width="120">상태 </th><th width="150">제목</th><th width="100">대전 형태</th><th width="100">시간</th><th width="100">장소</th><th width=120">등록일 </th></tr>';
             pager.innerHTML = "";
             if(res.data.res == 'success'){
-                const offers = res.data.offers;
-                offers.map((x) => {
+                const matches = res.data.matches;
+                matches.map((x) => {
                     const tableTr = document.createElement('tr');
-                    const teamTd = document.createElement('td');
+                    const stateTd = document.createElement('td');
                     const titleTd = document.createElement('td');
                     const typeTd = document.createElement('td');
-                    const positionTd = document.createElement('td');
+                    const timeTd = document.createElement('td');
                     const regionTd = document.createElement('td');
                     const regdateTd = document.createElement('td');
 
-                    teamTd.textContent = x.Team.team_name;
+                    stateTd.textContent = x.state;
                     titleTd.textContent = x.title;
                     typeTd.textContent = x.type;
-                    positionTd.textContent = x.position;          
-                    regionTd.textContent = x.Team.region;
+                    timeTd.textContent = x.time;          
+                    regionTd.textContent = x.region;
                     regdateTd.textContent = x.createdAt;
                     titleTd.style = "font-size:12px; font-weight:bold;"
-                    tableTr.appendChild(teamTd);
+                    tableTr.appendChild(stateTd);
                     tableTr.appendChild(titleTd);
                     tableTr.appendChild(typeTd);
-                    tableTr.appendChild(positionTd);
+                    tableTr.appendChild(timeTd);
                     tableTr.appendChild(regionTd);
                     tableTr.appendChild(regdateTd);
                     tableTr.addEventListener('click', () => { 
-                        location.href= "/team/offer/" + x.id;
+                        location.href= "/match/" + x.id;
                     });
                     list.appendChild(tableTr);
                     pager.innerHTML = res.data.pager;
@@ -137,25 +136,21 @@ const search = (url) => {
             console.error(err);
         });    
 }
-    const search_ck = (f) => {
-        if(f.content.value.trim() == '' && f.type.value != 's_all'){
-            alert("내용을 한 글자 이상 입력하세요");
-            return;
-        }
-        if(f.type.value == 's_all'){
-            f.content.value = 'all';
-        }
-        const url = '/team/offer/list/' + f.content.value + '?type=' + f.type.value;
-        search(url);
-    };
+const search_ck = (f) => {
+    if(f.content.value.trim() == '' && f.type.value != 's_all'){
+        alert("내용을 한 글자 이상 입력하세요");
+         return;
+    }
+    if(f.type.value == 's_all'){
+        f.content.value = 'all';
+    }
+    const url = '/match/list/' + f.content.value + '?type=' + f.type.value;
+    search(url);
+};
 
-    const list_board = () => {
-        location.href = "/team/list"
-    };
-
-    const insert_board = () => {
-        location.href = "/team/offer/insertform"
-    };
+const insert_board = () => {
+    location.href = "/match/insertform"
+};
 
 </script> 
 {% endblock %}

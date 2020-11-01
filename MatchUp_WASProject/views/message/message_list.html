@@ -82,6 +82,7 @@
                     {% if not message.isRead and message.receiver_id == user.id %}<span class="new_blink">NEW!</span> 
                     {% elif message.additional_info == 'join success' %} <span style="color:gray;">완료</span>
                     {% elif message.additional_info == 'invite success' %} <span style="color:gray;">완료</span>
+                    {% elif message.additional_info == 'apply success' %} <span style="color:gray;">완료</span>
                     {% elif message.sender_id == user.id %}발신
                     {% else %}수신
                     {% endif %}
@@ -89,16 +90,23 @@
                 <td width="60">
                     <input id="message_type" type="hidden" value="{{message.type}}">
                     {% if message.type == 'general' %} 일반
-                    {% elif message.type == 'join' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">가입신청</span>
-                    {% elif message.type == 'join_approve' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">가입승인</span>
+                    {% elif message.type == 'join' %} <span style="font-weight:bold; color:rgb(50, 199, 199);">가입신청</span>
+                    {% elif message.type == 'join_approve' %} <span style="font-weight:bold; color:rgba(50, 199, 199, 0.541);">가입승인</span>
                     {% elif message.type == 'invite' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">초대</span>
-                    {% elif message.type == 'invite_approve' %} <span style="font-weight:bold; color:rgb(236, 146, 11);">초대수락</span>
+                    {% elif message.type == 'invite_approve' %} <span style="font-weight:bold; color:rgba(236, 146, 11, 0.521);">초대수락</span>
+                    {% elif message.type == 'apply' %} <span style="font-weight:bold; color:rgb(158, 4, 247);">경기신청</span>
+                    {% elif message.type == 'apply_approve' %} <span style="font-weight:bold; color:rgba(158, 4, 247, 0.678);">경기수락</span>
+                    {% elif message.type == 'match_success' %} <span style="font-weight:bold; color:rgb(230, 29, 29);">새로운 경기</span>
                     {% endif %}
                 </td>
                 <td width="150"><b>{{message.title}}</b></td>
                 <td width="100">{{message.sender_nick}}</td>
                 <td width="100">{{message.receiver_nick}}</td>
-                <td width="100"><span style="color:blue">{{message.createdAt.getFullYear()}}.{{message.createdAt.getMonth()}}.{{message.createdAt.getDate()}}</span></td>    
+                <td width="100"><span style="color:blue">
+                    <script>
+                        document.write(timeFormat(parseInt('{{message.createdAt.getTime()}}')));
+                    </script>
+                </span></td>    
             </tr>
             {% endfor %}           
         </table>
