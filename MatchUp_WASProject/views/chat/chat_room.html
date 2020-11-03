@@ -1,0 +1,163 @@
+{% extends 'layout.html' %}
+{% block style %}
+<style>
+  #info_box{
+    width : 600px;
+    margin: auto;
+    text-align:center;
+  }
+  #chat_list{
+    margin : auto;
+    width : 570px;
+    height : 400px;
+    border : 2.5px ridge darkgray;
+    box-shadow: 2px 2px black;
+    background-color: rgba(236, 235, 235, 0.637);
+    overflow : auto;
+    position : relative;
+    padding : 10px;
+    text-align : left;
+  }
+  .chat_box_my{
+    width : 350px;
+    padding : 10px;
+    border : 1.5px dotted black;
+    background-color :rgba(177, 236, 177, 0.521);
+    margin : 3px;
+    float : right;
+    font-size : 11px;
+    display : block;
+  }
+  .chat_box{
+    width : 350px;
+    padding : 10px;
+    border : 1.5px dotted black;
+    background-color :rgba(177, 236, 177, 0.521);
+    margin : 3px;
+    float : left;
+    font-size : 11px;
+    display : block;
+  }
+  .chat_nick{
+    font-family: 'Do Hyeon';
+    font-size : 20px;
+  }
+  .chat_time{
+    font-size : 10px;
+    color: blue;
+  }
+  #input_box{
+    width : 570px;
+    padding : 10px;
+    margin : 10px auto;
+    border : 2.5px ridge darkgray;
+    box-shadow: 2px 2px black;
+  }
+</style>
+{% endblock %}
+{% block main_content %}
+<div id="info_box">
+  <h1>{{title}}</h1>
+  <br><hr><br>
+  <div id="chat_list">
+    {% for chat in chats %}
+    {% if chat.user == user.id %}
+      <div class="chat_box_my">
+          {% if chat.user_photo == "" or chat.user_photo == null %}
+          <img src='/img/profile_non.png' width="20" height="20"/>
+          {% else %}
+          <img src='{{chat.user_photo}}' width="20" height="20"/>
+          {% endif %}
+          <span class="chat_nick">{{chat.user_nick}}</span>
+          <span class="chat_time">
+            <script>
+              document.write(timeFormat(parseInt('{{chat.createdAt.getTime()}}')));
+            </script>
+          </span>
+          <p>{{chat.chat}}</p>
+      </div>
+    {% else %}
+      <div class="chat_box">
+          {% if chat.user_photo == "" or chat.user_photo == null %}
+          <img src='/img/profile_non.png' width="20" height="20"/>
+          {% else %}
+          <img src='{{chat.user_photo}}' width="20" height="20"/>
+          {% endif %}
+          <span class="chat_nick">{{chat.user_nick}}</span>
+          <span class="chat_time">
+          <script>
+            document.write(timeFormat(parseInt('{{chat.createdAt.getTime()}}')));
+          </script>
+          </span>
+          <p>{{chat.chat}}</p>
+      </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <div id="input_box">
+  <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
+    <input type="text" id="chat" name="chat" style="width: 70%">
+    <input type="button" class="btn_l" onclick="send(this.form)" value="채팅 전송"></input>
+  </form>
+  </div>    
+</div>
+{% endblock %}
+{% block script %}
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const chatlist_init = document.getElementById("chat_list"); 
+  chatlist_init.scrollTop = chatlist_init.scrollHeight;
+
+  const socket = io.connect('http://localhost:8001/chat', {
+    path: '/socket.io',
+  });
+
+  //socket에서 chat 이벤트 발생 시
+  socket.on('chat', function (data) {
+    const chat_box = document.createElement('div');
+    if(data.user == '{{user.id}}') chat_box.className = "chat_box_my";
+    else chat_box.className = "chat_box_my";
+
+    let src = '/img/profile_non.png';
+    if(data.user_photo != null && data.user_photo != "") src = data.user_photo;
+    const img = document.createElement('img');
+    img.src = src;
+    img.width = "20";
+    img.height = "20";
+    chat_box.appendChild(img);
+
+    const nick = document.createElement('span');
+    nick.className = "chat_nick";
+    nick.textContent = data.user_nick;
+    chat_box.appendChild(nick);
+
+    const time = document.createElement('span');
+    time.className = "chat_time";
+    time.textContent = timeFormat(data.createdAt);
+    chat_box.appendChild(time);
+
+    const chat = document.createElement('p');
+    chat.textContent = data.chat;
+    chat_box.appendChild(chat);
+
+    let chatlist = document.getElementById("chat_list"); 
+    chatlist.appendChild(chat_box);
+    chatlist.scrollTop = chatlist.scrollHeight;
+  });
+
+  //채팅 전송
+  function send(f){
+    if(f.chat.value.trim().length > 0){
+      axios.post('/room/{{room._id}}/chat', {
+        chat: f.chat.value
+      })
+      .then((res) => {
+        f.chat.value = "";
+      })
+      .catch((err) => {
+          console.error(err);
+      });
+    }
+  }
+</script>  
+{% endblock %}

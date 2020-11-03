@@ -44,8 +44,14 @@
 #match_info{
     margin : 30px auto;
     width : 540px;
-    position : relative;
     padding : 20px;
+    overflow : hidden;
+    text-align : center;
+}
+#util_box{
+    margin : 15px auto;
+    width : 540px;
+    padding : 15px;
     text-align : center;
 }
 #root_team{
@@ -124,8 +130,8 @@
 {% block main_content %}
 <div id="info_box">
     <p class="font_title">{{match.title}}</p>
-  </div><hr>
-  <div id="content_box">
+</div><hr>
+<div id="content_box">
     <table>
         <tr>
             <th width="120">&bull; 제목</td>
@@ -149,19 +155,13 @@
         </tr>
     </table>
     <textarea id="message_area" rows="25" cols="70" readonly>{{match.content}}</textarea>
-    <br><br><hr><br>
-    {% if user.id == match.Rootteam.leader_idx and match.state == '대천 찾는 중'%}
-    <input type="button" value="수정" class="btn_l" onclick="update();"> 
-    <input type="button" value="대전 종료" class="btn_l" onclick="del();">
-    {% endif %}
-    {% if match.state == '매칭 완료' %}
-    {% if user.id == match.Rootteam.leader_idx or user.id == match.Opteam.leader_idx %}
-    <input type="button" value="대전 정보 수정" class="btn_l" onclick="update();"> 
-    <input type="button" value="대전 종료" class="btn_l" onclick="del();">
-    {% endif %}
-    {% endif %}
 </div>
 <div id="match_info">
+    <p class="font_title">대전 정보</p>
+    {% if isMember %}
+    <input type="button" class="btn_sp" value="채팅방 입장" onclick="chatting();">
+    {% endif %}
+    <hr><br>
     <div id="root_team">
         <h2>Home Team</h2>
         {% if match.Rootteam.photo == "" or match.Rootteam.photo == null %}
@@ -235,9 +235,19 @@
         {% endif %}
     </div>
 </div>
-
-
-
+<div id="util_box">
+    <hr><br>
+    {% if user.id == match.Rootteam.leader_idx and match.state == '대천 찾는 중'%}
+    <input type="button" value="정보 수정" class="btn_l" onclick="update();"> 
+    <input type="button" value="대전 종료" class="btn_l" onclick="del();">
+    {% endif %}
+    {% if match.state == '매칭 완료' %}
+    {% if user.id == match.Rootteam.leader_idx or user.id == match.Opteam.leader_idx %}
+    <input type="button" value="정보 수정" class="btn_l" onclick="update();"> 
+    <input type="button" value="대전 종료" class="btn_l" onclick="del();">
+    {% endif %}
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block script %}
@@ -271,6 +281,10 @@ const match_apply = () => {
         return;
     }
     window.open("/message/applyform/{{match.id}}", "대전 신청하기", "width=550, height=450, left=300, top=50, scrollbars=yes");
+}
+
+const chatting = () => {
+    location.href = '/room/{{room_id}}?type=match';
 }
 </script>
 {% endblock %}

@@ -84,6 +84,24 @@ a{text-decoration: none;} /* 링크에 밑줄 같은거 제거*/
     color : darkslategrey;
     text-align : center;
 }
+
+.btn_sp {
+    display: inline-block;
+    padding: 3px 5px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background: white;
+    border: 1px solid black;
+    box-shadow : 0 0 2px green;
+    line-height: 21px;
+    vertical-align: top;
+    font-size : 21px;
+    margin: 4px;
+    font-family : 'Do Hyeon';
+    color : darkslategrey;
+    text-align : center;
+}
 .boldgreenfont{
     font-weight : bold;
     color : green;

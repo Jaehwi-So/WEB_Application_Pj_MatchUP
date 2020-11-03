@@ -74,7 +74,7 @@
     </form>
     <br><hr>
     <div id="list_box">
-        <input class="btn_l" type="button" value="대전 공고 올리기" onclick="insert_board()" style="margin: 20px auto;">
+        <input class="btn_sp" type="button" value="대전 공고 올리기" onclick="insert_board()" style="margin: 20px auto;">
         <table id="search_list">
 
         </table>
@@ -114,7 +114,13 @@ const search = (url) => {
                     timeTd.textContent = x.time;          
                     regionTd.textContent = x.region;
                     regdateTd.textContent = x.createdAt;
-                    titleTd.style = "font-size:12px; font-weight:bold;"
+                    titleTd.style = "font-size:13px; font-weight:bold;"
+                    if(x.state == '대전 찾는 중'){
+                        stateTd.style = "font-weight:bold; color:rgb(230, 29, 29);"
+                    }
+                    else{
+                        stateTd.style = "font-weight:bold; color:rgb(236, 146, 11);"
+                    }
                     tableTr.appendChild(stateTd);
                     tableTr.appendChild(titleTd);
                     tableTr.appendChild(typeTd);

@@ -181,6 +181,9 @@
     <br><hr><br>
 <div class="list_box">
     <p class="font_title">멤버 목록</p>
+    {% if isMember %}
+    <input type="button" class="btn_sp" value="채팅방 입장" onclick="chatting();">
+    {% endif %}
     <table>
         <tr>
             <th width="110">닉네임</th>
@@ -353,6 +356,10 @@ const join_team = () => {
         return;
     }
     window.open("/message/joinform/{{team.leader_idx}}?team={{team.id}}", "가입 신청", "width=550, height=450, left=300, top=50, scrollbars=yes");
+}
+
+const chatting = () => {
+    location.href = '/room/{{room_id}}?type=team';
 }
 </script> 
 {% endblock %}

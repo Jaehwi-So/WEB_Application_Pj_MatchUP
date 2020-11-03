@@ -97,6 +97,7 @@
                     {% elif message.type == 'apply' %} <span style="font-weight:bold; color:rgb(158, 4, 247);">경기신청</span>
                     {% elif message.type == 'apply_approve' %} <span style="font-weight:bold; color:rgba(158, 4, 247, 0.678);">경기수락</span>
                     {% elif message.type == 'match_success' %} <span style="font-weight:bold; color:rgb(230, 29, 29);">새로운 경기</span>
+                    {% elif message.type == 'match_exit' %} <span style="font-weight:bold; color:rgb(230, 29, 29);">경기 종료</span>
                     {% endif %}
                 </td>
                 <td width="150"><b>{{message.title}}</b></td>

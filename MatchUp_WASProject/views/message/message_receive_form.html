@@ -48,6 +48,8 @@
     대전 신청 수락
     {% elif message.type == 'match_success' %}
     새로운 대전
+    {% elif message.type == 'match_exit' %}
+    대전 종료
     {% endif %}
   </p>
   </div>
@@ -55,7 +57,7 @@
   <table class="info_table">
     <tr>
       <th width="110">From</th>
-      {% if message.type != 'match_success' %}
+      {% if message.sender_id != 0 %}
       <td width="340"><b style="cursor:pointer;" onclick="go_profile('{{message.sender_id}}');">{{message.sender_nick}}</b></a></td>
       {% else %}
       <td width="340">시스템</td>
@@ -143,6 +145,7 @@
     location.href = "/message/form/" + id;
   }
   function cancel(){
+    opener.location.reload();
     window.close();
   }
 

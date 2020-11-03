@@ -14,7 +14,9 @@ const authRouter = require('./routes/auth');
 const teamRouter = require('./routes/team');
 const messageRouter = require('./routes/message');
 const matchRouter = require('./routes/match');
+const roomRouter = require('./routes/room');
 const { sequelize } = require('./models');
+const webSocket = require('./socket');
 
 const mongo_connect = require('./schemas');   
 mongo_connect();    //몽고디비 연결
@@ -52,7 +54,7 @@ app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(session({
+const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   secret: process.env.COOKIE_SECRET,
@@ -60,7 +62,9 @@ app.use(session({
     httpOnly: true,
     secure: false,
   },
-}));
+});
+app.use(sessionMiddleware);
+
 
 //passport 미들웨어는 express-session 미들웨어 뒤에 연결한다.
 app.use(passport.initialize());//passport.initialize 미들웨어는 req객체에 passport 설정을 심는다.
@@ -72,6 +76,7 @@ app.use('/auth', authRouter);
 app.use('/team', teamRouter);
 app.use('/message', messageRouter);
 app.use('/match', matchRouter);
+app.use('/room', roomRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
@@ -86,6 +91,7 @@ app.use((err, req, res, next) => {
   res.render('error');
 });
 
-app.listen(app.get('port'), () => {
+const server = app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번 포트에서 대기중');
 });
+webSocket(server, app, sessionMiddleware, passport);

@@ -1,6 +1,7 @@
 const express = require('express');
 const { User, Team, Match } = require('../models');
 const Message = require('../schemas/message');
+const Room = require('../schemas/room');
 const Pager = require('../util/pager');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
@@ -170,7 +171,48 @@ exports.get_match = async (req, res) => {
             }],
         }]   
     });
-    res.render('match/match_detail', {match});
+
+    //매칭 완료 시 경기에 소속되있는지 여부
+    let isMember = false;
+    let room_id = 'none';
+    if(req.user && match.state == '매칭 완료'){
+        const room = await Room.findOne({  //Insert
+            type : 'match',
+            type_id : match.id,
+        });
+        room_id = room._id;
+        const match_root = await Match.findOne({
+            where: {id : parseInt(req.params.id)},
+            include: [{
+                model: Team,
+                as: 'Rootteam',
+                include: [{
+                    model: User,
+                    as: 'Users',
+                    where: {id: req.user.id}
+                }],
+            }]   
+        });
+        const match_op = await Match.findOne({
+            where: {id : parseInt(req.params.id)},
+            include: [{  
+                model: Team,
+                as: 'Opteam',
+                include: [{
+                    model: User,
+                    as: 'Users',
+                    where: {id: req.user.id}
+                }],
+            }]   
+        });
+        if(!match_root.Rootteam && !match_op.Opteam){
+            isMember = false;
+        }
+        else{
+            isMember = true;
+        }
+    }
+    res.render('match/match_detail', {match, room_id, isMember});
 };
 
 //매칭 수락
@@ -191,6 +233,14 @@ exports.match_connect = async (req, res, next) => {
             if(match.state == '매칭 완료'){
                 return res.json({res: "alldone"});
             }
+            //title, max, type, type_id, createdAt
+            const room = await Room.create({  //Insert
+                title : `${match.title} 경기의 채팅방`,  
+                max : 50,
+                type : 'match',
+                type_id : match.id,
+            });
+
             await Match.update({
                 state : '매칭 완료',
                 opteam : teamID,
@@ -217,6 +267,7 @@ exports.match_connect = async (req, res, next) => {
                     }],
                 }],
             });
+
             const applyMessage = await Message.update({ _id : messageID}, { $set: { additional_info: 'apply success'} });
             //매칭성사 메세지를 보냄
             const senderUser = await User.findOne({
@@ -242,7 +293,7 @@ exports.match_connect = async (req, res, next) => {
             match.Rootteam.Users.map(async (x) => {
                 await Message.create({  //Insert
                     title : `새로운 대전이 성사되었습니다.`,
-                    content : `당신의 팀 ${match.Rootteam.team_name}과 ${match.Opteam.team_name}팀과의 ${match.title} 경기가 성사되었습니다.`,
+                    content : `당신의 팀 ${match.Rootteam.team_name}과 팀 ${match.Opteam.team_name}의 ${match.title} 경기가 성사되었습니다.`,
                     type : 'match_success',
                     sender_id : 0,
                     sender_nick : 'SYSTEM',
@@ -254,7 +305,7 @@ exports.match_connect = async (req, res, next) => {
             match.Opteam.Users.map(async (x) => {
                 await Message.create({  //Insert
                     title : `새로운 대전이 성사되었습니다.`,
-                    content : `당신의 팀 ${match.Opteam.team_name}과 ${match.Rootteam.team_name}팀과의 ${match.title} 경기가 성사되었습니다.`,
+                    content : `당신의 팀 ${match.Opteam.team_name}과 팀 ${match.Rootteam.team_name}의 ${match.title} 경기가 성사되었습니다.`,
                     type : 'match_success',
                     sender_id : 0,
                     sender_nick : 'SYSTEM',
@@ -275,7 +326,56 @@ exports.match_connect = async (req, res, next) => {
 //매칭 종료(삭제)
 exports.delete_match = async (req, res, next) => {
     try {
-        const match = await Match.destroy({where : {id : parseInt(req.params.id) }});
+        const match = await Match.findOne({
+            where : {id : parseInt(req.params.id) },
+            include: [{  
+                model: Team,
+                as: 'Rootteam',
+                include: [{
+                    model: User,
+                    as: 'Users'
+                }],
+            }, {  
+                model: Team,
+                as: 'Opteam',
+                include: [{
+                    model: User,
+                    as: 'Users'
+                }],
+            }],
+        });
+        //모든 멤버들에게 매치 문자를 보냄
+        match.Rootteam.Users.map(async (x) => {
+            await Message.create({  //Insert
+                title : `대전이 종료되었습니다.`,
+                content : `당신의 팀 ${match.Rootteam.team_name}과 팀 ${match.Opteam.team_name}의 ${match.title} 경기가 종료되었습니다.`,
+                type : 'match_exit',
+                sender_id : 0,
+                sender_nick : 'SYSTEM',
+                receiver_id : x.id,
+                receiver_nick : x.nick,
+                additional_info : match.id,
+            });
+        })
+        match.Opteam.Users.map(async (x) => {
+            await Message.create({  //Insert
+                title : `대전이 종료되었습니다.`,
+                content : `당신의 팀 ${match.Opteam.team_name}과 팀 ${match.Rootteam.team_name}의 ${match.title} 경기가 종료되었습니다.`,
+                type : 'match_exit',
+                sender_id : 0,
+                sender_nick : 'SYSTEM',
+                receiver_id : x.id,
+                receiver_nick : x.nick,
+                additional_info : match.id,
+            });
+        })
+        await Room.destory({  
+            where : {
+                type_id : parseInt(req.params.id),
+                type : 'match',
+            }
+        });
+        await Match.destroy({where : {id : parseInt(req.params.id) }});
         res.json({res: "success"});
     } 
     catch (error) {

@@ -1,6 +1,7 @@
 const express = require('express');
 const { User, Team, Offer, Match } = require('../models');
 const Message = require('../schemas/message');
+const Room = require('../schemas/room');
 const bcrypt = require('bcrypt');
 const Pager = require('../util/pager');
 const { Op } = require('sequelize');
@@ -21,7 +22,12 @@ exports.create_team = async (req, res, next) => {
             region,
             state
         });
-        console.log(team);
+        const room = await Room.create({  //Insert
+            title : `${team_name} 팀의 채팅방`,  
+            max : 50,
+            type : 'team',
+            type_id : team.id,
+        });
         await team.addUser(leader_idx);
         res.redirect('/team/list');
     } 
@@ -140,7 +146,12 @@ exports.get_team_detail = async (req, res) => {
                 isMember = true;
             }
         }
-        res.render('team/team_profile', {team, isMember, matches});
+        const room = await Room.findOne({  //Insert
+            type : 'team',
+            type_id : team.id,
+        });
+
+        res.render('team/team_profile', {team, isMember, matches, room_id : room._id});
     }
     catch(e){
         console.error(e);
@@ -246,6 +257,12 @@ exports.delete_member = async (req, res, next) => {
         console.log(members);
         //팀 멤버가 남아있지 않은 경우
         if(!members || members.length == 0){
+            await Room.destory({  
+                where : {
+                    type_id : teamID,
+                    type : 'team',
+                }
+            });
             await Team.destroy({
                 where : {id : teamID},
             });

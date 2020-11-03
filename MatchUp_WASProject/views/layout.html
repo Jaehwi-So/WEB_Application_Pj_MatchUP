@@ -167,7 +167,13 @@
         <h2><span class="boldgreenfont">{{user.nick}}</span>님<br> 환영합니다</h2>
         <button id="btn_myprofile" class="btn_log" onclick="my_profile();" style="margin-top : 5px;">프로필</button>
         <button id="btn_logout" class="btn_log" onclick="logout();" style="margin-top : 5px;">로그아웃</button>
-        <button id="btn_logt" class="btn_log" onclick="go_message_list();" style="margin-top : 5px;">쪽지 {{issue_num}}</button>
+        <button id="btn_logt" class="btn_log" onclick="go_message_list();" style="margin-top : 5px;">
+          {% if issue_num > 99 %}
+          쪽지 99+
+          {% else %}
+          쪽지 {{issue_num}}
+          {% endif %}
+        </button>
         <hr style="margin-top : 5px;">
         <table>
           <tr>
