@@ -108,7 +108,7 @@
   const chatlist_init = document.getElementById("chat_list"); 
   chatlist_init.scrollTop = chatlist_init.scrollHeight;
 
-  const socket = io.connect('http://localhost:8001/chat', {
+  const socket = io.connect('172.16.24.176:8001/chat', {
     path: '/socket.io',
   });
 
@@ -116,7 +116,7 @@
   socket.on('chat', function (data) {
     const chat_box = document.createElement('div');
     if(data.user == '{{user.id}}') chat_box.className = "chat_box_my";
-    else chat_box.className = "chat_box_my";
+    else chat_box.className = "chat_box";
 
     let src = '/img/profile_non.png';
     if(data.user_photo != null && data.user_photo != "") src = data.user_photo;

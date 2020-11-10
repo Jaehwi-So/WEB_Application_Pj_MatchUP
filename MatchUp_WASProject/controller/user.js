@@ -82,7 +82,6 @@ exports.user_update = async (req, res, next) => {
 exports.user_delete = async (req, res, next) => {
     try {
       const {user_pwd} = req.body; 
-      console.log(req.body);
       let exUser;
       exUser = await User.findOne({ 
         where: {
@@ -104,7 +103,7 @@ exports.user_delete = async (req, res, next) => {
         return res.json({ res: 'fail' });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return res.json({ res: 'error' });
     }
 }
@@ -121,7 +120,7 @@ exports.read_profile = async (req, res, next) => {
       }
     } 
     catch (error) {
-      console.log(error);
+      console.error(error);
       res.render('main', {});
     }
 };
@@ -135,7 +134,6 @@ exports.search_user = async (req, res, next) => {
       const contentSize = 10; // 페이지에서 보여줄 컨텐츠 수.
       const pageSize = 5; // 페이지네이션 개수 설정.
       const skipSize = (curPage - 1) * contentSize; //다음 페이지 갈 때 건너뛸 리스트 개수.
-      console.log(curPage, contentSize, skipSize);
       let pager = "";
       //닉네임으로 검색
       if(req.query.type == 's_nick'){
@@ -194,14 +192,13 @@ exports.search_user = async (req, res, next) => {
       }
     } 
     catch (error) {
-      console.log(error);
+      console.error(error);
       return res.json({ res: 'error'});
     }
 }
 
 //프로필 사진 미리보기 업로드
 exports.upload_profile_img = (req, res) => {
-    console.log(req.file);
     res.json({ url: `/img/${req.file.filename}` });
 }
 
@@ -329,7 +326,6 @@ exports.get_follower_list = async (req, res, next) => {
   
       pager = Pager.getPage(url, false, curPage, contentSize, pageSize, skipSize, rowTotal, false, 'no');
       res.render('user/follow', {member: member, list_type: 'follower', pager: pager, target_name: user_name});
-      console.log('ok');
     }
     catch(error){
       console.error('error:', error);
@@ -364,7 +360,6 @@ exports.get_following_list = async (req, res, next) => {
   
       pager = Pager.getPage(url, false, curPage, contentSize, pageSize, skipSize, rowTotal, false, 'no');
       res.render('user/follow', {member: member, list_type: 'following', pager: pager, target_name: user_name});
-      console.log('ok');
     }
     catch(error){
       console.error('error:', error);

@@ -9,6 +9,9 @@ router.use(controller.all_route_bind);
 //메인화면
 router.get('/', controller.main_page);
 
+//메인화면
+router.get('/main', controller.main_page);
+
 //가입 페이지
 router.get('/join', controller.join_page);
 

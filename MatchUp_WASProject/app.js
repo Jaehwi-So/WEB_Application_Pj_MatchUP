@@ -6,8 +6,13 @@ const session = require('express-session');
 const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
 const passport = require('passport');
+const hpp = require('hpp');
+const helmet = require('helmet');
+const redis = require('redis');
+const RedisStore = require('connect-redis')(session);
 
 dotenv.config();
+const logger = require('./logger');
 const pageRouter = require('./routes/page');
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
@@ -16,7 +21,6 @@ const messageRouter = require('./routes/message');
 const matchRouter = require('./routes/match');
 const roomRouter = require('./routes/room');
 const { sequelize } = require('./models');
-const webSocket = require('./socket');
 
 const mongo_connect = require('./schemas');   
 mongo_connect();    //몽고디비 연결
@@ -40,7 +44,15 @@ sequelize.sync({ force: false })
     console.error(err);
   });
 
-app.use(morgan('dev'));
+if(process.env.NODE_ENV === 'production'){
+  app.use(morgan('combined'));
+  app.use(helmet());
+  app.use(hpp());
+} 
+else {
+  app.use(morgan('dev'));
+}
+
 try {
     fs.readdirSync('uploads');
 } 
@@ -53,16 +65,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser(process.env.COOKIE_SECRET));
-const sessionMiddleware = session({
-  resave: false,
-  saveUninitialized: false,
-  secret: process.env.COOKIE_SECRET,
-  cookie: {
-    httpOnly: true,
-    secure: false,
-  },
+
+const redisClient = redis.createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  password: process.env.REDIS_PASSWORD,
 });
+app.use(cookieParser(process.env.COOKIE_SECRET));
+const sessionOption = {
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.COOKIE_SECRET,
+    cookie: {
+      httpOnly: true,
+      secure: false,    
+    },
+    store: new RedisStore({ client: redisClient}),
+}
+if(process.env.NODE_ENV === 'production'){
+  sessionOption.proxy = true;
+}
+const sessionMiddleware = session(sessionOption);
+
 app.use(sessionMiddleware);
 
 
@@ -80,6 +103,7 @@ app.use('/room', roomRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
+  logger.error(error.message);
   error.status = 404;
   next(error);
 });
@@ -91,7 +115,7 @@ app.use((err, req, res, next) => {
   res.render('error');
 });
 
-const server = app.listen(app.get('port'), () => {
-  console.log(app.get('port'), '번 포트에서 대기중');
-});
-webSocket(server, app, sessionMiddleware, passport);
+module.exports = {
+  app,
+  sessionMiddleware
+};

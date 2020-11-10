@@ -3,7 +3,7 @@ const axios = require('axios');
 const cookieParser = require('cookie-parser');
 const cookie = require('cookie-signature');
 
-module.exports = (server, app, session, passport) => {
+module.exports = (server, app, session) => {
   const io = SocketIO(server, { path: '/socket.io' });
   app.set('io', io);
   const room = io.of('/room');
@@ -34,7 +34,6 @@ module.exports = (server, app, session, passport) => {
       socket.leave(roomId);
     });
     socket.on('chat', (data) => {
-      console.log('되냐?...');
       socket.to(data.room).emit(data);
     });
   });
